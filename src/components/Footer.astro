@@ -1,0 +1,102 @@
+---
+// src/components/Footer.astro
+import { getTranslation, type Lang } from '../utils/i18n';
+
+// Prop para recibir el idioma actual y realizar las traducciones
+interface Props {
+    currentLang?: Lang; 
+}
+
+const { currentLang = 'es' } = Astro.props; 
+
+// Función de traducción
+const t = (key: string) => getTranslation(currentLang, key);
+
+// Información de Contacto Fija
+const CONTACT_EMAIL = "info@multiserviciosemanuel.com";
+const CONTACT_WHATSAPP = "+34 600 123 456"; 
+const CONTACT_PHONE = "+34 93 123 45 67"; 
+
+// URLs de las secciones principales
+const navLinks = [
+    { key: 'nav_home', url: '/#' },
+    { key: 'nav_works', url: '/#trabajos' },
+    { key: 'nav_services', url: '/#servicios' },
+    { key: 'nav_contact', url: '/#contacto' },
+];
+
+// *Asegúrate de agregar estas claves al translations.json:*
+// "footer_tagline": "Reforms and comprehensive solutions for your home or business.",
+// "link_legal": "Legal Notice",
+// "link_privacy": "Privacy Policy",
+// "link_cookies": "Cookies Policy",
+---
+
+<footer class="bg-gray-900 text-white mt-12 py-10">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+
+        <div>
+            <h3 class="text-xl font-bold mb-4 text-blue-400">Multiservicios Emanuel</h3>
+            <p class="text-gray-400 text-sm">
+                {t('footer_tagline')}
+            </p>
+            <p class="mt-4 text-gray-500 text-xs">
+                © {new Date().getFullYear()} Multiservicios Emanuel
+                {t('footer_all_rights_reserved')}
+            </p>
+        </div>
+
+        <div>
+            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1">
+                {t('footer_sitemap')}
+            </h4>
+            <ul class="space-y-2">
+                {navLinks.map((item) => (
+                    <li>
+                        <a href={item.url} class="text-gray-400 hover:text-blue-400 transition text-sm">
+                            {t(item.key)}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </div>
+
+        <div>
+            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1">
+                {t('footer_legal_info')}
+            </h4>
+            <ul class="space-y-2">
+                <li><a href="/aviso-legal" class="text-gray-400 hover:text-blue-400 transition text-sm">{t('link_legal')}</a></li>
+                <li><a href="/privacidad" class="text-gray-400 hover:text-blue-400 transition text-sm">{t('link_privacy')}</a></li>
+                <li><a href="/cookies" class="text-gray-400 hover:text-blue-400 transition text-sm">{t('link_cookies')}</a></li>
+            </ul>
+        </div>
+        
+        <div>
+            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1">
+                {t('nav_contact')}
+            </h4>
+            <ul class="space-y-2 text-sm">
+                <li>
+                    <a href={`tel:${CONTACT_PHONE.replace(/[^0-9]/g, '')}`} class="flex items-center space-x-2 text-gray-400 hover:text-blue-400">
+                        <span class="text-lg">📞</span>
+                        <span>{CONTACT_PHONE}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href={`https://wa.me/${CONTACT_WHATSAPP.replace(/[^0-9]/g, '')}`} target="_blank" class="flex items-center space-x-2 text-gray-400 hover:text-blue-400">
+                        <span class="text-lg">💬</span>
+                        <span>{CONTACT_WHATSAPP}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href={`mailto:${CONTACT_EMAIL}`} class="flex items-center space-x-2 text-gray-400 hover:text-blue-400">
+                        <span class="text-lg">📧</span>
+                        <span>{CONTACT_EMAIL}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</footer>

@@ -1,0 +1,45 @@
+---
+// src/components/Contact.astro
+import { getTranslation, type Lang } from '../utils/i18n';
+
+interface Props {
+    currentLang?: Lang; 
+}
+
+const { currentLang = 'es' } = Astro.props; 
+const t = (key: string) => getTranslation(currentLang, key);
+
+// Información de Contacto (hardcodeada, ya que es información fija)
+const CONTACT_EMAIL = "info@multiserviciosemanuel.com";
+const CONTACT_WHATSAPP = "+34 600 123 456"; // Ejemplo
+const CONTACT_PHONE = "+34 93 123 45 67";  // Ejemplo
+---
+
+<section id="contacto" class="py-16 bg-blue-800 text-white">
+  <div class="container mx-auto px-4 text-center">
+    <h2 class="text-4xl font-bold mb-10" data-translate="contact_title">
+      {t('contact_title')}
+    </h2>
+    <p class="text-lg mb-8" data-translate="contact_call_to_action">
+      {t('contact_call_to_action')}
+    </p>
+
+    <div class="flex flex-col md:flex-row justify-center space-y-6 md:space-y-0 md:space-x-12">
+      <a href={`mailto:${CONTACT_EMAIL}`} class="flex items-center justify-center space-x-3 text-xl hover:text-blue-300 transition">
+        <span class="text-2xl">📧</span>
+        <span class="font-semibold">{CONTACT_EMAIL}</span>
+      </a>
+
+      <a href={`https://wa.me/${CONTACT_WHATSAPP.replace(/[^0-9]/g, '')}`} target="_blank" class="flex items-center justify-center space-x-3 text-xl hover:text-blue-300 transition">
+        <span class="text-2xl">💬</span>
+        <span class="font-semibold">{CONTACT_WHATSAPP}</span>
+      </a>
+
+      <a href={`tel:${CONTACT_PHONE.replace(/[^0-9]/g, '')}`} class="flex items-center justify-center space-x-3 text-xl hover:text-blue-300 transition">
+        <span class="text-2xl">📞</span>
+        <span class="font-semibold">{CONTACT_PHONE}</span>
+      </a>
+    </div>
+    
+    </div>
+</section>

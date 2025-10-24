@@ -1,0 +1,295 @@
+---
+// src/components/Header.astro
+import { getTranslation, supportedLangs, type Lang } from '../utils/i18n';
+
+// Prop para recibir el idioma actual de la página padre (index.astro)
+interface Props {
+    currentLang?: Lang; 
+}
+
+const { currentLang = 'es' } = Astro.props; 
+
+// Función de traducción
+const t = (key: string) => getTranslation(currentLang, key);
+
+// Definición de enlaces de navegación, sin hash para evitar scroll automático
+const navItems = [
+  { key: 'nav_home', section: 'inicio' },
+  { key: 'nav_works', section: 'trabajos' },
+  { key: 'nav_services', section: 'servicios' },
+  { key: 'nav_tips', section: 'consejos' },
+  { key: 'nav_contact', section: 'contacto' },
+];
+
+// Script para manejar el cambio de idioma será implementado directamente en el script tag
+---
+
+<header class="bg-white shadow-md p-4 sticky top-0 z-50">
+  <div class="container mx-auto flex flex-wrap justify-between items-center">
+    
+    <a href={`/${currentLang}`} class="text-3xl font-extrabold text-blue-700 hover:text-blue-900 transition mb-2 md:mb-0">
+      Multiservicios Emanuel
+    </a>
+
+    <nav class="hidden md:flex grow justify-center space-x-6">
+      {navItems.map((item) => (
+        <button 
+          data-section={item.section}
+          class="nav-link text-gray-600 hover:text-blue-700 font-medium py-2 px-3 rounded-md transition duration-300 ease-in-out cursor-pointer bg-transparent border-none"
+        >
+          {t(item.key)}
+        </button>
+      ))}
+    </nav>
+
+    <div class="language-links flex items-center space-x-1 ml-auto md:ml-0" aria-label="Selector de Idioma">
+        <a 
+            href="#" 
+            data-lang="es"
+            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 ${currentLang === 'es' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
+            aria-current={currentLang === 'es' ? 'true' : undefined}
+        >
+            ESP
+        </a>
+        <span class="separator text-gray-400 select-none">|</span>
+        <a 
+            href="#" 
+            data-lang="ca"
+            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 ${currentLang === 'ca' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
+            aria-current={currentLang === 'ca' ? 'true' : undefined}
+        >
+            CAT
+        </a>
+        <span class="separator text-gray-400 select-none">|</span>
+        <a 
+            href="#" 
+            data-lang="en"
+            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 ${currentLang === 'en' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
+            aria-current={currentLang === 'en' ? 'true' : undefined}
+        >
+            ENG
+        </a>
+    </div>
+
+    <button class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 ml-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+  </div>
+</header>
+
+<script>
+
+
+  // Script para mejorar la navegación
+  document.addEventListener('DOMContentLoaded', () => {
+    // Manejar sección guardada desde cambio de idioma (SIN hash)
+    const targetSection = sessionStorage.getItem('targetSection');
+    if (targetSection) {
+        sessionStorage.removeItem('targetSection');
+        const targetElement = document.getElementById(targetSection);
+        if (targetElement) {
+            const headerHeight = 80;
+            const elementTop = targetElement.offsetTop - headerHeight;
+            
+            console.log('Navegando a sección guardada:', targetSection);
+            
+            // Scroll instantáneo sin animación
+            window.scrollTo(0, elementTop);
+        }
+    }
+    // Si hay hash en URL al cargar página (navegación directa)
+    else if (window.location.hash) {
+        const hashId = window.location.hash.substring(1);
+        const targetElement = document.getElementById(hashId);
+        if (targetElement) {
+            const headerHeight = 80;
+            const elementTop = targetElement.offsetTop - headerHeight;
+            
+            // Scroll normal para navegación directa
+            requestAnimationFrame(() => {
+                window.scrollTo(0, elementTop);
+                document.documentElement.scrollTop = elementTop;
+                document.body.scrollTop = elementTop;
+            });
+        }
+    }
+    // Manejar navegación por secciones sin hash
+    const navButtons = document.querySelectorAll('.nav-link');
+    navButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const targetSection = button.getAttribute('data-section');
+            if (targetSection) {
+                const targetElement = document.getElementById(targetSection);
+                if (targetElement) {
+                    // Scroll suave con offset para compensar el header
+                    const headerHeight = 80;
+                    const targetPosition = targetElement.offsetTop - headerHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
+
+    // Manejar cambio de idioma preservando la sección actual
+    const languageLinks = document.querySelectorAll('.language-link');
+    languageLinks.forEach(link => {
+        const htmlElement = link as HTMLElement;
+        
+        // Efectos hover
+        link.addEventListener('mouseenter', () => {
+            if (!link.classList.contains('active')) {
+                htmlElement.style.transform = 'scale(1.1)';
+            }
+        });
+        
+        link.addEventListener('mouseleave', () => {
+            htmlElement.style.transform = 'scale(1)';
+        });
+
+        // Manejar click para cambio de idioma SIN recargar página
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const newLang = link.getAttribute('data-lang');
+            
+            // Solo cambiar si no es el idioma actual
+            if (newLang && !link.classList.contains('active')) {
+                console.log('Cambiando idioma a:', newLang, 'sin recargar página');
+                
+                // Cambiar idioma dinámicamente sin recarga
+                changeLanguageDynamically(newLang);
+            }
+        });
+    });
+
+    // Función para detectar la sección actual basada en la posición del scroll
+    function getCurrentSection() {
+        const sections = ['inicio', 'trabajos', 'servicios', 'consejos', 'contacto'];
+        const headerHeight = 80;
+        const scrollPosition = window.scrollY + headerHeight + 100; // Offset adicional
+        
+        let currentSection = 'inicio'; // Por defecto
+        
+        for (const sectionId of sections) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                const sectionTop = section.offsetTop;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                    currentSection = sectionId;
+                    break;
+                }
+            }
+        }
+        
+        return currentSection;
+    }
+
+    // Función para cambiar idioma dinámicamente sin recargar página
+    async function changeLanguageDynamically(newLang: string) {
+        try {
+            console.log('Cargando traducciones para:', newLang);
+            
+            // Cargar las traducciones del nuevo idioma
+            const response = await fetch('/translations.json');
+            const translations = await response.json();
+            
+            if (translations[newLang]) {
+                // Actualizar todos los textos
+                updatePageTexts(translations[newLang]);
+                
+                // Actualizar enlaces activos
+                updateActiveLanguage(newLang);
+                
+                // Actualizar URL sin recarga (solo para el historial)
+                window.history.pushState(null, '', '/');
+                
+                console.log('Idioma cambiado exitosamente a:', newLang);
+            }
+        } catch (error) {
+            console.error('Error cambiando idioma:', error);
+        }
+    }
+
+    // Función para actualizar todos los textos de la página
+    function updatePageTexts(translations: any) {
+        // Actualizar navegación
+        const navButtons = document.querySelectorAll('.nav-link');
+        navButtons.forEach((button, index) => {
+            const keys = ['nav_home', 'nav_works', 'nav_services', 'nav_tips', 'nav_contact'];
+            if (keys[index]) {
+                button.textContent = translations[keys[index]] || button.textContent;
+            }
+        });
+
+        // Actualizar otros elementos con data-key
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const key = element.getAttribute('data-translate');
+            if (key && translations[key]) {
+                element.textContent = translations[key];
+            }
+        });
+    }
+
+    // Función para actualizar el idioma activo en el selector
+    function updateActiveLanguage(newLang: string) {
+        document.querySelectorAll('.language-link').forEach(link => {
+            const lang = link.getAttribute('data-lang');
+            if (lang === newLang) {
+                link.classList.add('active', 'text-blue-600', 'font-bold');
+                link.classList.remove('text-gray-600');
+                link.setAttribute('aria-current', 'true');
+            } else {
+                link.classList.remove('active', 'text-blue-600', 'font-bold');
+                link.classList.add('text-gray-600');
+                link.removeAttribute('aria-current');
+            }
+        });
+    }
+  });
+</script>
+
+<style>
+    /* Estilos adicionales para los enlaces de idioma */
+    .language-links {
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    .language-link {
+        position: relative;
+        transition: all 0.3s ease;
+        border-radius: 4px;
+    }
+    
+    .language-link:hover:not(.active) {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+    
+    .language-link.active {
+        background-color: rgba(59, 130, 246, 0.15);
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+    
+    .separator {
+        font-weight: 300;
+        user-select: none;
+    }
+    
+    @media (max-width: 768px) {
+        .language-links {
+            font-size: 0.875rem;
+        }
+        
+        .language-link {
+            padding: 0.25rem 0.5rem;
+        }
+    }
+</style>

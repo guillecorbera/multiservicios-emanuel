@@ -1,0 +1,57 @@
+---
+// src/components/NuestrosTrabajos.astro
+import worksData from '../data/works.json';
+import { shuffleArray } from '../utils/shuffle.js';
+import { getTranslation, type Lang } from '../utils/i18n';
+import WorkCard from './WorkCard.astro';
+
+interface Props {
+    currentLang: Lang;
+}
+
+const { currentLang } = Astro.props; 
+const t = (key: string) => getTranslation(currentLang, key);
+
+// Obtener los datos y mezclarlos aleatoriamente en cada carga
+const shuffledWorks = shuffleArray([...worksData]); // Crear copia para no mutar el original
+
+// Limitar a 6 trabajos para mejor performance y UX
+const displayedWorks = shuffledWorks.slice(0, 6);
+---
+
+<section id="trabajos" class="py-24 bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="container mx-auto px-6">
+        
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 animate-fade-in" data-translate="works_title">
+                {t('works_title')}
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed" data-translate="works_subtitle">
+                {t('works_subtitle')}
+            </p>
+            <div class="w-24 h-1 bg-blue-500 mx-auto rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+            {displayedWorks.map((work, index) => (
+                <div class="animate-fade-in h-full" style={`animation-delay: ${index * 0.1}s`}>
+                    <WorkCard work={work} currentLang={currentLang} />
+                </div>
+            ))}
+        </div>
+
+        {worksData.length > 6 && (
+            <div class="text-center mt-12">
+                <p class="text-gray-600 mb-4" data-translate="works_showing_random">{t('works_showing_random')}</p>
+                <button 
+                    onclick="location.reload()" 
+                    class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    data-translate="works_show_more"
+                >
+                    {t('works_show_more')}
+                </button>
+            </div>
+        )}
+
+    </div>
+</section>

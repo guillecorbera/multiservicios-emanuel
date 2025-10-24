@@ -1,0 +1,415 @@
+---
+// src/components/WorkGalleryModal.astro
+import type { HTMLAttributes } from 'astro/types';
+import { getTranslation, type Lang } from '../utils/i18n';
+
+interface Props extends HTMLAttributes<'div'> {
+    workId: number;
+    title: string;
+    images: string[];
+    currentLang?: Lang;
+}
+const { workId, title, images, currentLang = 'es', ...attrs } = Astro.props;
+
+const t = (key: string) => getTranslation(currentLang, key);
+---
+
+<div 
+    id={`modal-${workId}`} 
+    aria-hidden="true" 
+    class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden items-center justify-center p-4 animate-fade-in"
+    {...attrs}
+>
+    <div class="bg-white rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto shadow-2xl relative animate-slide-in">
+        
+        <button 
+            data-close-modal={`modal-${workId}`}
+            class="absolute top-4 right-4 text-white bg-gray-800/80 hover:bg-gray-800 rounded-full p-3 transition-all duration-300 z-50 hover:scale-110"
+            aria-label={t('works_close_gallery')}
+        >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <header class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-gray-50">
+            <h3 class="text-3xl font-bold text-gray-800 mb-2">{title}</h3>
+            <p class="text-gray-600">{images.length} {images.length === 1 ? 'imagen' : 'imágenes'} en la galería</p>
+        </header>
+
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {images.map((src, index) => (
+                    <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer" onclick={`openImageViewer('${src.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}')`}>
+                        <img 
+                            src={src} 
+                            alt={`Imagen ${index + 1} de ${title}`}
+                            loading="lazy"
+                            class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Visor de imagen individual -->
+<div id="image-viewer" class="fixed inset-0 bg-black bg-opacity-95 backdrop-blur-sm items-center justify-center p-4" style="z-index: 9999; display: none;">
+    <div class="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+        <!-- Botón cerrar -->
+        <button 
+            onclick="window.closeImageViewer()"
+            class="absolute top-4 right-4 text-white bg-black bg-opacity-70 hover:bg-opacity-90 rounded-full p-3 transition-all duration-300"
+            style="z-index: 10000;"
+        >
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <!-- Flecha anterior -->
+        <button 
+            id="prev-image-btn"
+            onclick="window.navigateImage(-1)"
+            class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 transition-all duration-300 opacity-75 hover:opacity-100"
+            style="z-index: 10000;"
+        >
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+
+        <!-- Flecha siguiente -->
+        <button 
+            id="next-image-btn"
+            onclick="window.navigateImage(1)"
+            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 hover:bg-opacity-80 rounded-full p-3 transition-all duration-300 opacity-75 hover:opacity-100"
+            style="z-index: 10000;"
+        >
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+
+        <!-- Contenedor de imagen con loading -->
+        <div class="relative flex items-center justify-center">
+            <!-- Spinner de carga -->
+            <div id="image-loading" class="absolute inset-0 flex items-center justify-center" style="display: none;">
+                <div class="animate-spin rounded-full h-16 w-16 border-4 border-white border-t-transparent"></div>
+            </div>
+            
+            <!-- Imagen principal -->
+            <img id="viewer-image" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-opacity duration-300" style="opacity: 0;" />
+        </div>
+
+        <!-- Contador de imágenes -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-70 px-4 py-2 rounded-full text-sm">
+            <span id="image-counter">1 / 1</span>
+        </div>
+    </div>
+</div>
+
+<script is:inline>
+    // Variables globales para la galería
+    let currentGalleryImages = [];
+    let currentImageIndex = 0;
+    let currentImageTitle = '';
+
+    // Funciones globales para la galería
+    function openWorkModal(modalId) {
+        console.log('Abriendo modal:', modalId);
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            
+            // Recopilar imágenes de este modal para navegación
+            const imageContainers = modal.querySelectorAll('[onclick*="openImageViewer"]');
+            currentGalleryImages = Array.from(imageContainers).map(container => {
+                const img = container.querySelector('img');
+                return {
+                    src: img.src,
+                    alt: img.alt
+                };
+            });
+            
+            // Precargar algunas imágenes
+            preloadGalleryImages();
+            
+            console.log('Galería preparada con', currentGalleryImages.length, 'imágenes');
+        } else {
+            console.error('Modal no encontrado:', modalId);
+        }
+    }
+
+    function openImageViewer(imageSrc, imageTitle) {
+        console.log('Abriendo visor de imagen:', imageSrc);
+        const viewer = document.getElementById('image-viewer');
+        const viewerImage = document.getElementById('viewer-image');
+        const loading = document.getElementById('image-loading');
+        const counter = document.getElementById('image-counter');
+        
+        if (viewer && viewerImage && loading) {
+            // Encontrar el índice de la imagen actual
+            currentImageIndex = currentGalleryImages.findIndex(img => img.src === imageSrc);
+            currentImageTitle = imageTitle;
+            
+            // Mostrar loading
+            loading.style.display = 'flex';
+            viewerImage.style.opacity = '0';
+            
+            // Mostrar visor
+            viewer.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Cargar imagen con animación
+            loadImageWithAnimation(imageSrc, imageTitle);
+            
+            // Actualizar contador
+            updateImageCounter();
+            
+            console.log('Visor abierto correctamente - imagen:', currentImageIndex + 1, 'de', currentGalleryImages.length);
+        } else {
+            console.error('Elementos del visor no encontrados');
+        }
+    }
+
+    function loadImageWithAnimation(imageSrc, imageTitle) {
+        const viewerImage = document.getElementById('viewer-image');
+        const loading = document.getElementById('image-loading');
+        
+        // Crear nueva imagen para precargar
+        const img = new Image();
+        
+        img.onload = function() {
+            // Ocultar loading
+            loading.style.display = 'none';
+            
+            // Actualizar imagen y mostrar con fade in
+            viewerImage.src = imageSrc;
+            viewerImage.alt = imageTitle;
+            viewerImage.style.opacity = '1';
+        };
+        
+        img.onerror = function() {
+            loading.style.display = 'none';
+            console.error('Error cargando imagen:', imageSrc);
+            viewerImage.style.opacity = '1';
+        };
+        
+        // Iniciar carga
+        img.src = imageSrc;
+    }
+
+    function navigateImage(direction) {
+        if (currentGalleryImages.length === 0) return;
+        
+        const viewerImage = document.getElementById('viewer-image');
+        
+        // Fade out actual
+        viewerImage.style.opacity = '0';
+        
+        setTimeout(() => {
+            // Calcular nuevo índice
+            currentImageIndex += direction;
+            
+            // Loop circular
+            if (currentImageIndex >= currentGalleryImages.length) {
+                currentImageIndex = 0;
+            } else if (currentImageIndex < 0) {
+                currentImageIndex = currentGalleryImages.length - 1;
+            }
+            
+            const newImage = currentGalleryImages[currentImageIndex];
+            loadImageWithAnimation(newImage.src, newImage.alt);
+            updateImageCounter();
+        }, 150);
+    }
+
+    function updateImageCounter() {
+        const counter = document.getElementById('image-counter');
+        if (counter && currentGalleryImages.length > 0) {
+            counter.textContent = `${currentImageIndex + 1} / ${currentGalleryImages.length}`;
+        }
+    }
+
+    function closeImageViewer() {
+        console.log('Cerrando visor de imagen');
+        const viewer = document.getElementById('image-viewer');
+        const viewerImage = document.getElementById('viewer-image');
+        
+        if (viewer) {
+            viewer.style.display = 'none';
+            document.body.style.overflow = '';
+            
+            // Reset
+            if (viewerImage) {
+                viewerImage.style.opacity = '0';
+            }
+        }
+    }
+
+    function closeAllModals() {
+        console.log('Cerrando todos los modales');
+        // Cerrar modales de galería
+        document.querySelectorAll('[id^="modal-"]').forEach(function(modal) {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        });
+        
+        // Cerrar visor de imagen
+        closeImageViewer();
+        
+        document.body.style.overflow = '';
+    }
+
+    // Asignar funciones al objeto window para acceso global
+    window.openWorkModal = openWorkModal;
+    window.openImageViewer = openImageViewer;
+    window.closeImageViewer = closeImageViewer;
+    window.navigateImage = navigateImage;
+
+    // Función de inicialización
+    function initializeGallery() {
+        console.log('Inicializando galería avanzada...');
+        
+        // Escuchar botones de cierre
+        document.querySelectorAll('[data-close-modal]').forEach(function(button) {
+            button.addEventListener('click', closeAllModals);
+        });
+
+        // Cerrar al hacer clic fuera del contenido
+        document.querySelectorAll('[id^="modal-"], #image-viewer').forEach(function(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeAllModals();
+                }
+            });
+        });
+
+        // Navegación por teclado mejorada
+        document.addEventListener('keydown', function(e) {
+            const viewer = document.getElementById('image-viewer');
+            
+            if (viewer && viewer.style.display === 'flex') {
+                switch(e.key) {
+                    case 'Escape':
+                        closeAllModals();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        navigateImage(-1);
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        navigateImage(1);
+                        break;
+                }
+            } else if (e.key === 'Escape') {
+                closeAllModals();
+            }
+        });
+
+        // Implementar lazy loading avanzado para imágenes
+        implementLazyLoading();
+
+        console.log('Galería avanzada inicializada');
+    }
+
+    // Lazy loading avanzado con Intersection Observer
+    function implementLazyLoading() {
+        // Solo implementar si el navegador soporta Intersection Observer
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const placeholder = img.previousElementSibling;
+                        
+                        // Crear imagen temporal para precargar
+                        const tempImg = new Image();
+                        
+                        tempImg.onload = function() {
+                            // Fade in de la imagen real
+                            img.src = tempImg.src;
+                            img.style.opacity = '1';
+                            
+                            // Ocultar placeholder
+                            if (placeholder && placeholder.classList.contains('image-placeholder')) {
+                                placeholder.style.opacity = '0';
+                                setTimeout(() => placeholder.remove(), 300);
+                            }
+                        };
+                        
+                        tempImg.onerror = function() {
+                            // En caso de error, mostrar imagen placeholder
+                            img.style.opacity = '0.5';
+                            if (placeholder) {
+                                placeholder.style.opacity = '1';
+                            }
+                        };
+                        
+                        // Iniciar carga
+                        tempImg.src = img.dataset.src || img.src;
+                        
+                        // Dejar de observar esta imagen
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px 0px',
+                threshold: 0.1
+            });
+
+            // Observar todas las imágenes de la galería
+            document.querySelectorAll('.gallery-image-container img').forEach(function(img) {
+                // Agregar placeholder si no existe
+                if (!img.previousElementSibling || !img.previousElementSibling.classList.contains('image-placeholder')) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'image-placeholder absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center transition-opacity duration-300';
+                    placeholder.innerHTML = '<svg class="w-12 h-12 text-gray-400 opacity-50" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" /></svg>';
+                    img.parentNode.insertBefore(placeholder, img);
+                }
+                
+                // Configurar imagen para lazy loading
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s ease-in-out';
+                
+                imageObserver.observe(img);
+            });
+        } else {
+            // Fallback para navegadores antiguos
+            document.querySelectorAll('.gallery-image-container img').forEach(function(img) {
+                img.style.opacity = '1';
+            });
+        }
+    }
+
+    // Precargar imágenes de la galería actual
+    function preloadGalleryImages() {
+        currentGalleryImages.forEach(function(imageData, index) {
+            if (index <= 2) { // Precargar solo las primeras 3 imágenes
+                const img = new Image();
+                img.src = imageData.src;
+            }
+        });
+    }
+
+    // Inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeGallery);
+    } else {
+        initializeGallery();
+    }
+    
+    // También para navegación SPA de Astro
+    document.addEventListener('astro:page-load', initializeGallery);
+</script>
