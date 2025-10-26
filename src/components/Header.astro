@@ -14,11 +14,11 @@ const t = (key: string) => getTranslation(currentLang, key);
 
 // Definición de enlaces de navegación, sin hash para evitar scroll automático
 const navItems = [
-  { key: 'nav_home', section: 'inicio' },
-  { key: 'nav_works', section: 'trabajos' },
-  { key: 'nav_services', section: 'servicios' },
-  { key: 'nav_tips', section: 'consejos' },
-  { key: 'nav_contact', section: 'contacto' },
+  { key: 'nav_home', section: 'inicio', isExternal: false },
+  { key: 'nav_works', section: 'trabajos', isExternal: false },
+  { key: 'nav_services', section: 'servicios', isExternal: false },
+  { key: 'nav_tips', section: 'consejos', isExternal: false },
+  { key: 'nav_contact', section: 'contacto', isExternal: false },
 ];
 
 // Script para manejar el cambio de idioma será implementado directamente en el script tag
@@ -27,7 +27,7 @@ const navItems = [
 <header class="bg-white shadow-md p-4 sticky top-0 z-50">
   <div class="container mx-auto flex flex-wrap justify-between items-center">
     
-    <a href={`/${currentLang}`} class="text-3xl font-extrabold text-blue-700 hover:text-blue-900 transition mb-2 md:mb-0">
+    <a href="/" class="text-3xl font-extrabold text-blue-700 hover:text-blue-900 transition mb-2 md:mb-0">
       Multiservicios Emanuel
     </a>
 
@@ -46,7 +46,7 @@ const navItems = [
         <a 
             href="#" 
             data-lang="es"
-            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 ${currentLang === 'es' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
+            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 flex items-center justify-center min-h-[28px] ${currentLang === 'es' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
             aria-current={currentLang === 'es' ? 'true' : undefined}
         >
             ESP
@@ -55,7 +55,7 @@ const navItems = [
         <a 
             href="#" 
             data-lang="ca"
-            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 ${currentLang === 'ca' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
+            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 flex items-center justify-center min-h-[28px] ${currentLang === 'ca' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
             aria-current={currentLang === 'ca' ? 'true' : undefined}
         >
             CAT
@@ -64,7 +64,7 @@ const navItems = [
         <a 
             href="#" 
             data-lang="en"
-            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 ${currentLang === 'en' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
+            class={`language-link px-2 py-1 font-medium text-sm transition-colors duration-300 hover:text-blue-600 flex items-center justify-center min-h-[28px] ${currentLang === 'en' ? 'active text-blue-600 font-bold' : 'text-gray-600'}`}
             aria-current={currentLang === 'en' ? 'true' : undefined}
         >
             ENG
@@ -80,11 +80,20 @@ const navItems = [
   </div>
 </header>
 
-<script>
-
-
+<script is:inline>
   // Script para mejorar la navegación
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Detectar y aplicar idioma guardado al cargar la página
+    try {
+      const storedLang = localStorage.getItem('selectedLanguage') || sessionStorage.getItem('selectedLanguage');
+      if (storedLang && ['es', 'ca', 'en'].includes(storedLang) && storedLang !== 'es') {
+        console.log('Aplicando idioma guardado:', storedLang);
+        changeLanguageDynamically(storedLang);
+      }
+    } catch (error) {
+      console.log('No se pudo detectar idioma previo, usando español por defecto');
+    }
+    
     // Manejar sección guardada desde cambio de idioma (SIN hash)
     const targetSection = sessionStorage.getItem('targetSection');
     if (targetSection) {
@@ -118,12 +127,39 @@ const navItems = [
     }
     // Manejar navegación por secciones sin hash
     const navButtons = document.querySelectorAll('.nav-link');
-    navButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
+    navButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
             const targetSection = button.getAttribute('data-section');
+            
+            e.preventDefault();
+            console.log('Navegando a sección:', targetSection, 'desde:', window.location.pathname);
+            
             if (targetSection) {
+                // Si estamos en la página de consejos
+                if (window.location.pathname === '/consejos') {
+                    if (targetSection === 'consejos') {
+                        // Si ya estamos en consejos, hacer scroll al top
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                    } else {
+                        // Si queremos ir a otra sección, ir a la página principal
+                        console.log('Redirigiendo desde consejos a:', targetSection);
+                        window.location.href = `/#${targetSection}`;
+                        return;
+                    }
+                }
+                
+                // Si estamos en la página principal, buscar el elemento
                 const targetElement = document.getElementById(targetSection);
                 if (targetElement) {
+                    console.log('Elemento encontrado:', targetSection);
+                    
+                    // Actualizar indicador inmediatamente
+                    navButtons.forEach(function(btn) { 
+                        btn.classList.remove('active'); 
+                    });
+                    button.classList.add('active');
+                    
                     // Scroll suave con offset para compensar el header
                     const headerHeight = 80;
                     const targetPosition = targetElement.offsetTop - headerHeight;
@@ -132,6 +168,13 @@ const navItems = [
                         top: targetPosition,
                         behavior: 'smooth'
                     });
+                } else {
+                    console.log('Elemento no encontrado:', targetSection);
+                    // Si no se encuentra el elemento, ir a la página principal
+                    if (window.location.pathname !== '/') {
+                        console.log('Redirigiendo a página principal:', targetSection);
+                        window.location.href = `/#${targetSection}`;
+                    }
                 }
             }
         });
@@ -139,32 +182,38 @@ const navItems = [
 
     // Manejar cambio de idioma preservando la sección actual
     const languageLinks = document.querySelectorAll('.language-link');
-    languageLinks.forEach(link => {
-        const htmlElement = link as HTMLElement;
+    languageLinks.forEach(function(link) {
+        // Marcar como manejado por el Header
+        link.setAttribute('data-header-handled', 'true');
         
         // Efectos hover
-        link.addEventListener('mouseenter', () => {
+        link.addEventListener('mouseenter', function() {
             if (!link.classList.contains('active')) {
-                htmlElement.style.transform = 'scale(1.1)';
+                link.style.transform = 'scale(1.1)';
             }
         });
         
-        link.addEventListener('mouseleave', () => {
-            htmlElement.style.transform = 'scale(1)';
+        link.addEventListener('mouseleave', function() {
+            link.style.transform = 'scale(1)';
         });
 
         // Manejar click para cambio de idioma SIN recargar página
-        link.addEventListener('click', (e) => {
+        link.addEventListener('click', function(e) {
             e.preventDefault();
             
             const newLang = link.getAttribute('data-lang');
+            const currentActive = link.classList.contains('active');
+            
+            console.log('Header: Click en idioma:', newLang, 'Actualmente activo:', currentActive);
             
             // Solo cambiar si no es el idioma actual
-            if (newLang && !link.classList.contains('active')) {
-                console.log('Cambiando idioma a:', newLang, 'sin recargar página');
+            if (newLang && !currentActive) {
+                console.log('Header: Iniciando cambio de idioma a:', newLang);
                 
                 // Cambiar idioma dinámicamente sin recarga
                 changeLanguageDynamically(newLang);
+            } else {
+                console.log('Header: No se cambia idioma - ya está activo o newLang es null');
             }
         });
     });
@@ -187,29 +236,68 @@ const navItems = [
                     currentSection = sectionId;
                     break;
                 }
+            } else {
+                console.log('Sección no encontrada:', sectionId);
             }
         }
         
+        console.log('Sección actual detectada:', currentSection);
         return currentSection;
     }
 
+    // Función para actualizar el indicador de sección activa
+    function updateActiveNavIndicator() {
+        const currentSection = getCurrentSection();
+        const navButtons = document.querySelectorAll('.nav-link');
+        const sections = ['inicio', 'trabajos', 'servicios', 'consejos', 'contacto'];
+        
+        navButtons.forEach((button, index) => {
+            const sectionName = sections[index];
+            if (sectionName === currentSection) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+    }
+
+    // Actualizar indicador al hacer scroll
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function() {
+            updateActiveNavIndicator();
+        }, 50); // Throttle para mejor performance
+    });
+
+    // Actualizar indicador al cargar la página
+    updateActiveNavIndicator();
+
     // Función para cambiar idioma dinámicamente sin recargar página
-    async function changeLanguageDynamically(newLang: string) {
+    async function changeLanguageDynamically(newLang) {
         try {
             console.log('Cargando traducciones para:', newLang);
+            
+            // Guardar idioma seleccionado
+            try {
+                localStorage.setItem('selectedLanguage', newLang);
+                sessionStorage.setItem('selectedLanguage', newLang);
+            } catch (error) {
+                console.log('No se pudo guardar el idioma seleccionado');
+            }
             
             // Cargar las traducciones del nuevo idioma
             const response = await fetch('/translations.json');
             const translations = await response.json();
             
             if (translations[newLang]) {
-                // Actualizar todos los textos
-                updatePageTexts(translations[newLang]);
-                
-                // Actualizar enlaces activos
+                // PRIMERO: Actualizar enlaces activos del selector
                 updateActiveLanguage(newLang);
                 
-                // Actualizar URL sin recarga (solo para el historial)
+                // SEGUNDO: Actualizar todos los textos de la página
+                updatePageTexts(translations[newLang]);
+                
+                // TERCERO: Actualizar URL sin recarga (solo para el historial)
                 window.history.pushState(null, '', '/');
                 
                 console.log('Idioma cambiado exitosamente a:', newLang);
@@ -220,10 +308,10 @@ const navItems = [
     }
 
     // Función para actualizar todos los textos de la página
-    function updatePageTexts(translations: any) {
+    function updatePageTexts(translations) {
         // Actualizar navegación
         const navButtons = document.querySelectorAll('.nav-link');
-        navButtons.forEach((button, index) => {
+        navButtons.forEach(function(button, index) {
             const keys = ['nav_home', 'nav_works', 'nav_services', 'nav_tips', 'nav_contact'];
             if (keys[index]) {
                 button.textContent = translations[keys[index]] || button.textContent;
@@ -231,28 +319,45 @@ const navItems = [
         });
 
         // Actualizar otros elementos con data-key
-        document.querySelectorAll('[data-translate]').forEach(element => {
+        document.querySelectorAll('[data-translate]').forEach(function(element) {
             const key = element.getAttribute('data-translate');
             if (key && translations[key]) {
                 element.textContent = translations[key];
             }
         });
+        
+        // Actualizar componente de Consejos si está presente
+        try {
+            const currentLang = localStorage.getItem('selectedLanguage') || 'es';
+            Object.keys(window).forEach(function(key) {
+                if (key.startsWith('updateConsejos_') && typeof window[key] === 'function') {
+                    console.log('Header: Actualizando componente Consejos:', key, 'a idioma:', currentLang);
+                    window[key](currentLang);
+                }
+            });
+        } catch (error) {
+            console.log('Header: Error actualizando componentes Consejos:', error);
+        }
     }
 
     // Función para actualizar el idioma activo en el selector
-    function updateActiveLanguage(newLang: string) {
-        document.querySelectorAll('.language-link').forEach(link => {
+    function updateActiveLanguage(newLang) {
+        console.log('Header: Actualizando selector de idioma a:', newLang);
+        document.querySelectorAll('.language-link').forEach(function(link) {
             const lang = link.getAttribute('data-lang');
             if (lang === newLang) {
+                console.log('Header: Activando enlace para idioma:', lang);
                 link.classList.add('active', 'text-blue-600', 'font-bold');
                 link.classList.remove('text-gray-600');
                 link.setAttribute('aria-current', 'true');
             } else {
+                console.log('Header: Desactivando enlace para idioma:', lang);
                 link.classList.remove('active', 'text-blue-600', 'font-bold');
                 link.classList.add('text-gray-600');
                 link.removeAttribute('aria-current');
             }
         });
+        console.log('Header: Actualización de selector completada');
     }
   });
 </script>
@@ -275,12 +380,46 @@ const navItems = [
     
     .language-link.active {
         background-color: rgba(59, 130, 246, 0.15);
-        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
     }
     
     .separator {
         font-weight: 300;
         user-select: none;
+    }
+    
+    /* Estilos para indicador de sección activa en navegación */
+    .nav-link {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link.active {
+        color: rgb(29, 78, 216); /* text-blue-700 */
+        font-weight: 600;
+    }
+    
+    .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 3px;
+        background: linear-gradient(90deg, rgb(59, 130, 246), rgb(29, 78, 216));
+        border-radius: 2px;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            width: 0%;
+            opacity: 0;
+        }
+        to {
+            width: 80%;
+            opacity: 1;
+        }
     }
     
     @media (max-width: 768px) {
@@ -290,6 +429,10 @@ const navItems = [
         
         .language-link {
             padding: 0.25rem 0.5rem;
+        }
+        
+        .nav-link.active::after {
+            bottom: -4px;
         }
     }
 </style>

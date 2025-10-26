@@ -1,0 +1,141 @@
+---
+// src/components/Servicios.astro
+import { getTranslation, type Lang } from '../utils/i18n';
+
+interface Props {
+    currentLang: Lang;
+}
+
+const { currentLang } = Astro.props; 
+const t = (key: string) => getTranslation(currentLang, key);
+---
+
+<section id="servicios" class="py-24 bg-gray-50">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 id="services-title" class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">{t('services_title')}</h2>
+            <p id="services-subtitle" class="text-lg text-gray-600 max-w-2xl mx-auto">{t('services_subtitle')}</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-blue-500">
+                <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6 mx-auto group-hover:bg-blue-200 transition-colors">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <h3 id="service-reforms-title" class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-blue-600 transition-colors">{t('service_reforms_title')}</h3>
+                <p id="service-reforms-desc" class="text-gray-600 leading-relaxed">{t('service_reforms_desc')}</p>
+            </div>
+            <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-green-500">
+                <div class="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6 mx-auto group-hover:bg-green-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="m14.622 17.897-10.68-2.913" stroke-width="2"/>
+                        <path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z" stroke-width="2"/>
+                        <path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3 id="service-painting-title" class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-green-600 transition-colors">{t('service_painting_title')}</h3>
+                <p id="service-painting-desc" class="text-gray-600 leading-relaxed">{t('service_painting_desc')}</p>
+            </div>
+            <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-yellow-500">
+                <div class="flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-6 mx-auto group-hover:bg-yellow-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M17 19a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1z" stroke-width="2"/>
+                        <path d="M17 21v-2" stroke-width="2"/>
+                        <path d="M19 14V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V10" stroke-width="2"/>
+                        <path d="M21 21v-2" stroke-width="2"/>
+                        <path d="M3 5V3" stroke-width="2"/>
+                        <path d="M4 10a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2a2 2 0 0 1-2 2z" stroke-width="2"/>
+                        <path d="M7 5V3" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3 id="service-electrical-title" class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-yellow-600 transition-colors">{t('service_electrical_title')}</h3>
+                <p id="service-electrical-desc" class="text-gray-600 leading-relaxed">{t('service_electrical_desc')}</p>
+            </div>
+            <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-purple-500">
+                <div class="flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-6 mx-auto group-hover:bg-purple-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z" stroke-width="2"/>
+                        <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3 id="service-plumbing-title" class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-purple-600 transition-colors">{t('service_plumbing_title')}</h3>
+                <p id="service-plumbing-desc" class="text-gray-600 leading-relaxed">{t('service_plumbing_desc')}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script is:inline>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentServicesLang = 'es';
+
+    // Función para actualizar las traducciones de la sección de servicios
+    function updateServicesTranslations(translations) {
+        // Actualizar título de sección
+        const titleElement = document.getElementById('services-title');
+        if (titleElement && translations.services_title) {
+            titleElement.textContent = translations.services_title;
+        }
+
+        // Actualizar subtítulo de sección
+        const subtitleElement = document.getElementById('services-subtitle');
+        if (subtitleElement && translations.services_subtitle) {
+            subtitleElement.textContent = translations.services_subtitle;
+        }
+
+        // Actualizar títulos y descripciones de servicios
+        const serviceElements = [
+            { titleId: 'service-reforms-title', descId: 'service-reforms-desc', titleKey: 'service_reforms_title', descKey: 'service_reforms_desc' },
+            { titleId: 'service-painting-title', descId: 'service-painting-desc', titleKey: 'service_painting_title', descKey: 'service_painting_desc' },
+            { titleId: 'service-electrical-title', descId: 'service-electrical-desc', titleKey: 'service_electrical_title', descKey: 'service_electrical_desc' },
+            { titleId: 'service-plumbing-title', descId: 'service-plumbing-desc', titleKey: 'service_plumbing_title', descKey: 'service_plumbing_desc' }
+        ];
+
+        serviceElements.forEach(service => {
+            const titleEl = document.getElementById(service.titleId);
+            const descEl = document.getElementById(service.descId);
+            
+            if (titleEl && translations[service.titleKey]) {
+                titleEl.textContent = translations[service.titleKey];
+            }
+            if (descEl && translations[service.descKey]) {
+                descEl.textContent = translations[service.descKey];
+            }
+        });
+    }
+
+    // Función principal para cambiar idioma en la sección de servicios
+    async function changeServicesLanguage(newLang) {
+        try {
+            console.log('Actualizando sección de servicios al idioma:', newLang);
+            
+            // Cargar traducciones
+            const response = await fetch('/translations.json');
+            const translations = await response.json();
+            
+            if (translations[newLang]) {
+                currentServicesLang = newLang;
+                updateServicesTranslations(translations[newLang]);
+                console.log('Sección de servicios actualizada correctamente');
+            }
+        } catch (error) {
+            console.error('Error actualizando sección de servicios:', error);
+        }
+    }
+
+    // Escuchar cambios de idioma desde el header
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList && e.target.classList.contains('language-link')) {
+            const newLang = e.target.getAttribute('data-lang');
+            if (newLang && newLang !== currentServicesLang) {
+                changeServicesLanguage(newLang);
+            }
+        }
+    });
+});
+</script>

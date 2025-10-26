@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "category": "pintura",
+    "title": "Cómo preparar las paredes antes de pintar",
+    "content": "Antes de aplicar pintura, es fundamental limpiar bien las paredes, lijar las imperfecciones y aplicar una imprimación adecuada. Esto garantizará un acabado profesional y duradero.",
+    "tags": [
+      "pintura",
+      "preparación",
+      "paredes"
+    ],
+    "difficulty": "fácil",
+    "estimatedTime": "2-3 horas",
+    "createdAt": "2025-01-15",
+    "translations": {
+      "ca": {
+        "title": "Com preparar les parets abans de pintar",
+        "content": "Abans d'aplicar pintura, és fonamental netejar bé les parets, polir les imperfeccions i aplicar una emprimació adequada. Això garantirà un acabat professional i durador."
+      },
+      "en": {
+        "title": "How to prepare walls before painting",
+        "content": "Before applying paint, it's essential to clean the walls thoroughly, sand imperfections, and apply appropriate primer. This will ensure a professional and long-lasting finish."
+      }
+    }
+  },
+  {
+    "id": 2,
+    "category": "fontaneria",
+    "title": "Mantenimiento básico de grifos y tuberías",
+    "content": "Revisa regularmente los grifos en busca de goteos y limpia los filtros cada 6 meses. Mantén las tuberías libres de obstrucciones usando agua caliente y bicarbonato de sodio mensualmente.",
+    "tags": [
+      "fontanería",
+      "mantenimiento",
+      "grifos"
+    ],
+    "difficulty": "fácil",
+    "estimatedTime": "30 minutos",
+    "createdAt": "2025-01-10",
+    "translations": {
+      "ca": {
+        "title": "Manteniment bàsic de grifs i canonades",
+        "content": "Revisa regularment els grifs cercant degotalls i neteja els filtres cada 6 mesos. Mantén les canonades lliures d'obstruccions usant aigua calenta i bicarbonat de sodi mensualment."
+      },
+      "en": {
+        "title": "Basic maintenance for faucets and pipes",
+        "content": "Regularly check faucets for leaks and clean filters every 6 months. Keep pipes free of blockages using hot water and baking soda monthly."
+      }
+    }
+  },
+  {
+    "id": 3,
+    "category": "electricidad",
+    "title": "Señales de que necesitas revisar tu instalación eléctrica",
+    "content": "Si notas luces que parpadean, enchufes que se calientan, o el cuadro eléctrico salta frecuentemente, es hora de llamar a un profesional. La seguridad eléctrica no es negociable.",
+    "tags": [
+      "electricidad",
+      "seguridad",
+      "instalación"
+    ],
+    "difficulty": "información",
+    "estimatedTime": "lectura",
+    "createdAt": "2025-01-05",
+    "translations": {
+      "ca": {
+        "title": "Senyals que necessites revisar la teva instal·lació elèctrica",
+        "content": "Si notes llums que parpellegen, endolls que s'escalfen, o el quadre elèctric salta freqüentment, és hora de trucar a un professional. La seguretat elèctrica no és negociable."
+      },
+      "en": {
+        "title": "Signs you need to check your electrical installation",
+        "content": "If you notice flickering lights, heating outlets, or the electrical panel trips frequently, it's time to call a professional. Electrical safety is non-negotiable."
+      }
+    }
+  }
+]

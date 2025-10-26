@@ -33,8 +33,13 @@ const t = (key: string) => getTranslation(currentLang, key);
         </button>
 
         <header class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-gray-50">
-            <h3 class="text-3xl font-bold text-gray-800 mb-2">{title}</h3>
-            <p class="text-gray-600">{images.length} {images.length === 1 ? 'imagen' : 'imágenes'} en la galería</p>
+            <h3 class="modal-title text-3xl font-bold text-gray-800 mb-2" data-original-title={title}>{title}</h3>
+            <p class="modal-image-count text-gray-600" data-image-count={images.length}>
+                {images.length} {images.length === 1 ? 
+                    (currentLang === 'ca' ? 'imatge' : currentLang === 'en' ? 'image' : 'imagen') : 
+                    (currentLang === 'ca' ? 'imatges' : currentLang === 'en' ? 'images' : 'imágenes')
+                } {currentLang === 'ca' ? 'a la galeria' : currentLang === 'en' ? 'in gallery' : 'en la galería'}
+            </p>
         </header>
 
         <div class="p-8">
@@ -62,7 +67,7 @@ const t = (key: string) => getTranslation(currentLang, key);
 
 <!-- Visor de imagen individual -->
 <div id="image-viewer" class="fixed inset-0 bg-black bg-opacity-95 backdrop-blur-sm items-center justify-center p-4" style="z-index: 9999; display: none;">
-    <div class="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+    <div class="relative w-full h-full max-w-[95vw] max-h-[95vh] flex items-center justify-center">
         <!-- Botón cerrar -->
         <button 
             onclick="window.closeImageViewer()"
@@ -99,14 +104,14 @@ const t = (key: string) => getTranslation(currentLang, key);
         </button>
 
         <!-- Contenedor de imagen con loading -->
-        <div class="relative flex items-center justify-center">
+        <div class="relative w-full h-full flex items-center justify-center">
             <!-- Spinner de carga -->
             <div id="image-loading" class="absolute inset-0 flex items-center justify-center" style="display: none;">
                 <div class="animate-spin rounded-full h-16 w-16 border-4 border-white border-t-transparent"></div>
             </div>
             
             <!-- Imagen principal -->
-            <img id="viewer-image" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-opacity duration-300" style="opacity: 0;" />
+            <img id="viewer-image" src="" alt="" class="w-[90%] h-[90%] md:w-[85%] md:h-[85%] object-contain rounded-lg shadow-2xl transition-opacity duration-300" style="opacity: 0;" />
         </div>
 
         <!-- Contador de imágenes -->
@@ -117,23 +122,33 @@ const t = (key: string) => getTranslation(currentLang, key);
 </div>
 
 <script is:inline>
-    // Variables globales para la galería
-    let currentGalleryImages = [];
-    let currentImageIndex = 0;
-    let currentImageTitle = '';
+    // Variables globales para la galería (evitar redeclaración)
+    if (typeof window.galleryState === 'undefined') {
+        window.galleryState = {
+            currentGalleryImages: [],
+            currentImageIndex: 0,
+            currentImageTitle: ''
+        };
+    }
 
     // Funciones globales para la galería
     function openWorkModal(modalId) {
         console.log('Abriendo modal:', modalId);
         const modal = document.getElementById(modalId);
         if (modal) {
+            // Detectar idioma actual y actualizar modal antes de mostrarlo
+            const currentLang = localStorage.getItem('selectedLanguage') || 'es';
+            if (window.updateModalLanguage && window.worksData) {
+                window.updateModalLanguage(currentLang, window.worksData);
+            }
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
             
             // Recopilar imágenes de este modal para navegación
             const imageContainers = modal.querySelectorAll('[onclick*="openImageViewer"]');
-            currentGalleryImages = Array.from(imageContainers).map(container => {
+            window.galleryState.currentGalleryImages = Array.from(imageContainers).map(container => {
                 const img = container.querySelector('img');
                 return {
                     src: img.src,
@@ -144,7 +159,7 @@ const t = (key: string) => getTranslation(currentLang, key);
             // Precargar algunas imágenes
             preloadGalleryImages();
             
-            console.log('Galería preparada con', currentGalleryImages.length, 'imágenes');
+            console.log('Galería preparada con', window.galleryState.currentGalleryImages.length, 'imágenes');
         } else {
             console.error('Modal no encontrado:', modalId);
         }
@@ -159,8 +174,8 @@ const t = (key: string) => getTranslation(currentLang, key);
         
         if (viewer && viewerImage && loading) {
             // Encontrar el índice de la imagen actual
-            currentImageIndex = currentGalleryImages.findIndex(img => img.src === imageSrc);
-            currentImageTitle = imageTitle;
+            window.galleryState.currentImageIndex = window.galleryState.currentGalleryImages.findIndex(img => img.src === imageSrc);
+            window.galleryState.currentImageTitle = imageTitle;
             
             // Mostrar loading
             loading.style.display = 'flex';
@@ -176,7 +191,7 @@ const t = (key: string) => getTranslation(currentLang, key);
             // Actualizar contador
             updateImageCounter();
             
-            console.log('Visor abierto correctamente - imagen:', currentImageIndex + 1, 'de', currentGalleryImages.length);
+            console.log('Visor abierto correctamente - imagen:', window.galleryState.currentImageIndex + 1, 'de', window.galleryState.currentGalleryImages.length);
         } else {
             console.error('Elementos del visor no encontrados');
         }
@@ -210,7 +225,7 @@ const t = (key: string) => getTranslation(currentLang, key);
     }
 
     function navigateImage(direction) {
-        if (currentGalleryImages.length === 0) return;
+        if (window.galleryState.currentGalleryImages.length === 0) return;
         
         const viewerImage = document.getElementById('viewer-image');
         
@@ -219,16 +234,16 @@ const t = (key: string) => getTranslation(currentLang, key);
         
         setTimeout(() => {
             // Calcular nuevo índice
-            currentImageIndex += direction;
+            window.galleryState.currentImageIndex += direction;
             
             // Loop circular
-            if (currentImageIndex >= currentGalleryImages.length) {
-                currentImageIndex = 0;
-            } else if (currentImageIndex < 0) {
-                currentImageIndex = currentGalleryImages.length - 1;
+            if (window.galleryState.currentImageIndex >= window.galleryState.currentGalleryImages.length) {
+                window.galleryState.currentImageIndex = 0;
+            } else if (window.galleryState.currentImageIndex < 0) {
+                window.galleryState.currentImageIndex = window.galleryState.currentGalleryImages.length - 1;
             }
             
-            const newImage = currentGalleryImages[currentImageIndex];
+            const newImage = window.galleryState.currentGalleryImages[window.galleryState.currentImageIndex];
             loadImageWithAnimation(newImage.src, newImage.alt);
             updateImageCounter();
         }, 150);
@@ -236,8 +251,8 @@ const t = (key: string) => getTranslation(currentLang, key);
 
     function updateImageCounter() {
         const counter = document.getElementById('image-counter');
-        if (counter && currentGalleryImages.length > 0) {
-            counter.textContent = `${currentImageIndex + 1} / ${currentGalleryImages.length}`;
+        if (counter && window.galleryState.currentGalleryImages.length > 0) {
+            counter.textContent = `${window.galleryState.currentImageIndex + 1} / ${window.galleryState.currentGalleryImages.length}`;
         }
     }
 
@@ -271,11 +286,50 @@ const t = (key: string) => getTranslation(currentLang, key);
         document.body.style.overflow = '';
     }
 
+    // Función para actualizar los modales según el idioma
+    function updateModalLanguage(lang, workData) {
+        document.querySelectorAll('[id^="modal-"]').forEach(function(modal) {
+            // Actualizar título del modal
+            const titleElement = modal.querySelector('.modal-title');
+            if (titleElement) {
+                const originalTitle = titleElement.getAttribute('data-original-title');
+                // Buscar el trabajo correspondiente en workData para obtener la traducción
+                if (workData && originalTitle) {
+                    const work = workData.find(w => 
+                        w.title_es === originalTitle || 
+                        w.title_ca === originalTitle || 
+                        w.title_en === originalTitle
+                    );
+                    if (work) {
+                        const newTitle = work[`title_${lang}`] || work.title_es;
+                        titleElement.textContent = newTitle;
+                    }
+                }
+            }
+            
+            // Actualizar contador de imágenes
+            const countElement = modal.querySelector('.modal-image-count');
+            if (countElement) {
+                const imageCount = parseInt(countElement.getAttribute('data-image-count'));
+                if (!isNaN(imageCount)) {
+                    const imageText = lang === 'es' ? (imageCount === 1 ? 'imagen' : 'imágenes') :
+                                     lang === 'ca' ? (imageCount === 1 ? 'imatge' : 'imatges') :
+                                     (imageCount === 1 ? 'image' : 'images');
+                    const inText = lang === 'ca' ? 'a la galeria' : 
+                                  lang === 'en' ? 'in gallery' : 
+                                  'en la galería';
+                    countElement.textContent = `${imageCount} ${imageText} ${inText}`;
+                }
+            }
+        });
+    }
+
     // Asignar funciones al objeto window para acceso global
     window.openWorkModal = openWorkModal;
     window.openImageViewer = openImageViewer;
     window.closeImageViewer = closeImageViewer;
     window.navigateImage = navigateImage;
+    window.updateModalLanguage = updateModalLanguage;
 
     // Función de inicialización
     function initializeGallery() {
@@ -395,7 +449,7 @@ const t = (key: string) => getTranslation(currentLang, key);
 
     // Precargar imágenes de la galería actual
     function preloadGalleryImages() {
-        currentGalleryImages.forEach(function(imageData, index) {
+        window.galleryState.currentGalleryImages.forEach(function(imageData, index) {
             if (index <= 2) { // Precargar solo las primeras 3 imágenes
                 const img = new Image();
                 img.src = imageData.src;

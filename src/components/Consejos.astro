@@ -1,0 +1,699 @@
+---
+// src/components/Consejos.astro - Componente completo de consejos
+import { getTranslation, type Lang } from '../utils/i18n';
+import tipsData from '../data/tips.json';
+
+interface Props {
+    currentLang: Lang;
+}
+
+const { currentLang } = Astro.props; 
+const t = (key: string) => getTranslation(currentLang, key);
+
+// Función para obtener el contenido del tip según el idioma
+const getTipContent = (tip: any, lang: Lang) => {
+  if (lang === 'es') {
+    return {
+      title: tip.title,
+      content: tip.content,
+      tags: tip.tags,
+      difficulty: tip.difficulty,
+      estimatedTime: tip.estimatedTime
+    };
+  }
+  const translation = tip.translations && tip.translations[lang] ? tip.translations[lang] : {};
+  return {
+    title: translation.title || tip.title,
+    content: translation.content || tip.content,
+    tags: translation.tags || tip.tags,
+    difficulty: translation.difficulty || tip.difficulty,
+    estimatedTime: translation.estimatedTime || tip.estimatedTime
+  };
+};
+
+// Función para obtener la traducción de la categoría
+const getCategoryTranslation = (category: string) => {
+  const categories = {
+    'pintura': { es: 'Pintura', ca: 'Pintura', en: 'Painting' },
+    'fontaneria': { es: 'Fontanería', ca: 'Fontaneria', en: 'Plumbing' },
+    'electricidad': { es: 'Electricidad', ca: 'Electricitat', en: 'Electrical' },
+    'reforma': { es: 'Reforma', ca: 'Reforma', en: 'Renovation' }
+  };
+  return categories[category as keyof typeof categories]?.[currentLang] || category;
+};
+
+// Función para obtener la traducción de dificultad
+const getDifficultyTranslation = (difficulty: string) => {
+  const difficulties = {
+    'fácil': { es: 'Fácil', ca: 'Fàcil', en: 'Easy' },
+    'medio': { es: 'Medio', ca: 'Mitjà', en: 'Medium' },
+    'difícil': { es: 'Difícil', ca: 'Difícil', en: 'Hard' },
+    'información': { es: 'Información', ca: 'Informació', en: 'Information' }
+  };
+  return difficulties[difficulty as keyof typeof difficulties]?.[currentLang] || difficulty;
+};
+
+// Obtener categorías únicas
+const categories = [...new Set(tipsData.map(tip => tip.category))];
+
+// Definir el ID único para esta instancia del componente
+const componentId = 'consejos-component-' + Math.random().toString(36).substr(2, 9);
+---
+
+<section id="consejos" class="py-24 bg-gradient-to-br from-blue-50 to-indigo-50">
+  <div class="container mx-auto px-6">
+    <!-- Título de la sección -->
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4" data-translate="nav_tips">
+        {t('nav_tips')}
+      </h2>
+      <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed" data-translate="tips_subtitle">
+        {t('tips_subtitle')}
+      </p>
+      <div class="w-24 h-1 bg-blue-500 mx-auto rounded-full"></div>
+    </div>
+
+    <!-- Controles y filtros -->
+    <div class="mb-12">
+      <!-- Botón para ver todos/contraer -->
+      <div class="text-center mb-8">
+        <button 
+          id={`toggle-all-tips-${componentId}`}
+          class="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          <span class="toggle-text" data-translate="tips_view_all">{t('tips_view_all')}</span>
+          <svg class="w-5 h-5 toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Filtros (inicialmente ocultos) -->
+      <div id={`filters-${componentId}`} class="hidden">
+        <div class="flex flex-wrap gap-4 justify-center mb-8 p-4 bg-white rounded-lg shadow-md">
+          <button 
+            class={`filter-btn active px-6 py-2 rounded-full border-2 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300`}
+            data-category="all"
+            data-component-id={componentId}
+          >
+            <span data-translate="filter_all">Todos</span>
+          </button>
+          {categories.map(category => (
+            <button 
+              class="filter-btn px-6 py-2 rounded-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors duration-300"
+              data-category={String(category)}
+              data-component-id={componentId}
+            >
+              {getCategoryTranslation(String(category))}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista previa (3 consejos) -->
+    <div id={`tips-preview-${componentId}`} class="grid md:grid-cols-3 gap-6 mb-8">
+      {tipsData.slice(0, 3).map((tip) => {
+        const tipContent = getTipContent(tip, currentLang);
+        return (
+          <article 
+            class="tip-card bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2"
+            data-category={tip.category}
+            data-component-id={componentId}
+          >
+            <!-- Header de la tarjeta -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+              <div class="flex justify-between items-start mb-2">
+                <span class="category-text bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  {getCategoryTranslation(tip.category)}
+                </span>
+                <span class="difficulty-text bg-white/20 text-white px-2 py-1 rounded text-xs">
+                  {getDifficultyTranslation(tip.difficulty)}
+                </span>
+              </div>
+              <h3 class="tip-title text-white font-bold text-lg leading-tight">
+                {tipContent.title}
+              </h3>
+            </div>
+
+            <!-- Contenido -->
+            <div class="p-6">
+              <p class="tip-content text-gray-700 leading-relaxed mb-4">
+                {tipContent.content}
+              </p>
+              
+              <!-- Metadata -->
+              <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {tipContent.estimatedTime}
+                </span>
+                <span>{new Date(tip.createdAt).toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'ca' ? 'ca-ES' : 'es-ES')}</span>
+              </div>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-2">
+                {tipContent.tags.map((tag: string) => (
+                  <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <!-- Grid completo (inicialmente oculto) -->
+    <div id={`tips-grid-${componentId}`} class="hidden tips-full-grid gap-8">
+      {tipsData.map((tip) => {
+        const tipContent = getTipContent(tip, currentLang);
+        return (
+          <article 
+            class="tip-card bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2"
+            data-category={tip.category}
+            data-component-id={componentId}
+          >
+            <!-- Header de la tarjeta -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+              <div class="flex justify-between items-start mb-2">
+                <span class="category-text bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  {getCategoryTranslation(tip.category)}
+                </span>
+                <span class="difficulty-text bg-white/20 text-white px-2 py-1 rounded text-xs">
+                  {getDifficultyTranslation(tip.difficulty)}
+                </span>
+              </div>
+              <h3 class="tip-title text-white font-bold text-lg leading-tight">
+                {tipContent.title}
+              </h3>
+            </div>
+
+            <!-- Contenido -->
+            <div class="p-6">
+              <p class="tip-content text-gray-700 leading-relaxed mb-4">
+                {tipContent.content}
+              </p>
+              
+              <!-- Metadata -->
+              <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {tipContent.estimatedTime}
+                </span>
+                <span>{new Date(tip.createdAt).toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'ca' ? 'ca-ES' : 'es-ES')}</span>
+              </div>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-2">
+                {tipContent.tags.map((tag: string) => (
+                  <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <!-- Mensaje cuando no hay resultados -->
+    <div id={`no-results-${componentId}`} class="hidden text-center py-12">
+      <div class="text-gray-400 mb-4">
+        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+      </div>
+      <p class="text-gray-600 text-lg" data-translate="no_tips_found">
+        No se encontraron consejos para esta categoría
+      </p>
+    </div>
+
+    <!-- CTA para contacto -->
+    <section class="bg-blue-600 text-white py-12 mt-16 rounded-2xl">
+      <div class="container mx-auto px-4 text-center">
+        <h3 class="text-3xl font-bold mb-4" data-translate="tips_cta_title">
+          ¿Necesitas ayuda profesional?
+        </h3>
+        <p class="text-xl text-blue-100 mb-6" data-translate="tips_cta_subtitle">
+          Nuestro equipo está listo para ayudarte con cualquier proyecto
+        </p>
+        <button 
+          data-section="contacto"
+          class="nav-link inline-flex items-center gap-2 px-8 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-300 cursor-pointer bg-transparent border-none"
+          data-translate="tips_cta_button"
+        >
+          Contactar Ahora
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </button>
+      </div>
+    </section>
+  </div>
+</section>
+
+<script is:inline define:vars={{componentId, tipsData}}>
+document.addEventListener('DOMContentLoaded', function() {
+  const cId = componentId;
+  let isExpanded = false;
+  // Inicializar con el idioma guardado en localStorage o español por defecto
+  let currentTipsLang = localStorage.getItem('selectedLanguage') || 'es';
+  console.log('Consejos: Inicializando con idioma:', currentTipsLang);
+
+  // Elementos específicos de este componente
+  const toggleButton = document.getElementById(`toggle-all-tips-${cId}`);
+  const filtersSection = document.getElementById(`filters-${cId}`);
+  const previewSection = document.getElementById(`tips-preview-${cId}`);
+  const gridSection = document.getElementById(`tips-grid-${cId}`);
+  const noResults = document.getElementById(`no-results-${cId}`);
+  const filterButtons = document.querySelectorAll(`[data-component-id="${cId}"].filter-btn`);
+  const tipCards = document.querySelectorAll(`[data-component-id="${cId}"].tip-card`);
+
+  if (!toggleButton) return;
+
+  // Detectar idioma actual
+  try {
+    const storedLang = localStorage.getItem('selectedLanguage');
+    if (storedLang && ['es', 'ca', 'en'].includes(storedLang)) {
+      currentTipsLang = storedLang;
+      console.log('Consejos: Idioma inicial detectado:', currentTipsLang);
+      
+      // Aplicar el idioma detectado con un pequeño delay para evitar conflictos
+      setTimeout(() => {
+        updateTipsContent(currentTipsLang);
+      }, 100);
+    }
+  } catch (error) {
+    console.log('Consejos: No se pudo detectar idioma previo, usando español por defecto');
+  }
+
+  // Función para alternar vista completa/previa
+  function toggleFullView() {
+    isExpanded = !isExpanded;
+    
+    console.log('Toggle vista completa - isExpanded:', isExpanded);
+    console.log('currentTipsLang actual:', currentTipsLang);
+    
+    const toggleText = toggleButton.querySelector('.toggle-text');
+    const toggleIcon = toggleButton.querySelector('.toggle-icon');
+    
+    if (isExpanded) {
+      // Obtener idioma actual del localStorage para asegurar sincronización
+      const storedLang = localStorage.getItem('selectedLanguage') || 'es';
+      console.log('Idioma almacenado al expandir:', storedLang);
+      
+      // Actualizar currentTipsLang si es diferente
+      if (currentTipsLang !== storedLang) {
+        console.log('Actualizando currentTipsLang de', currentTipsLang, 'a', storedLang);
+        currentTipsLang = storedLang;
+      }
+      
+      // Mostrar vista completa
+      previewSection.classList.add('hidden');
+      gridSection.classList.remove('hidden');
+      filtersSection.classList.remove('hidden');
+      
+      // IMPORTANTE: Actualizar contenido de consejos al idioma actual al expandir
+      updateTipsContent(currentTipsLang);
+      
+      // Actualizar botón
+      if (toggleText) {
+        const translations = {
+          'es': 'Ver Menos Consejos',
+          'ca': 'Veure Menys Consells', 
+          'en': 'View Fewer Tips'
+        };
+        toggleText.textContent = translations[currentTipsLang] || 'Ver Menos Consejos';
+      }
+      
+      if (toggleIcon) {
+        toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>';
+      }
+      
+      // Scroll suave a la sección
+      setTimeout(() => {
+        const consejosSection = document.getElementById('consejos');
+        if (consejosSection) {
+          const headerHeight = 80;
+          const targetPosition = consejosSection.offsetTop - headerHeight;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+      
+    } else {
+      // Mostrar vista previa
+      previewSection.classList.remove('hidden');
+      gridSection.classList.add('hidden');
+      filtersSection.classList.add('hidden');
+      
+      // IMPORTANTE: Actualizar también la vista previa al idioma actual
+      updateTipsContent(currentTipsLang);
+      
+      // Actualizar botón
+      if (toggleText) {
+        const translations = {
+          'es': 'Ver Todos los Consejos',
+          'ca': 'Veure Tots els Consells',
+          'en': 'View All Tips'
+        };
+        toggleText.textContent = translations[currentTipsLang] || 'Ver Todos los Consejos';
+      }
+      
+      if (toggleIcon) {
+        toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
+      }
+      
+      // Resetear filtros
+      resetFilters();
+    }
+  }
+
+  // Event listener para el botón toggle
+  toggleButton.addEventListener('click', toggleFullView);
+
+  // Función para filtrar consejos
+  function filterTips(category) {
+    if (!isExpanded) return;
+
+    // Actualizar botones activos
+    filterButtons.forEach(btn => {
+      btn.classList.remove('active', 'bg-blue-600', 'text-white');
+      btn.classList.add('text-blue-600', 'border-blue-600');
+    });
+    
+    const activeButton = document.querySelector(`[data-category="${category}"][data-component-id="${cId}"]`);
+    if (activeButton) {
+      activeButton.classList.add('active', 'bg-blue-600', 'text-white');
+      activeButton.classList.remove('text-blue-600');
+    }
+
+    // Filtrar tarjetas del grid completo
+    const gridCards = gridSection.querySelectorAll('.tip-card');
+    let visibleCount = 0;
+    
+    gridCards.forEach(card => {
+      const cardCategory = card.getAttribute('data-category');
+      
+      if (category === 'all' || cardCategory === category) {
+        if (card instanceof HTMLElement) card.style.display = 'block';
+        visibleCount++;
+      } else {
+        if (card instanceof HTMLElement) card.style.display = 'none';
+      }
+    });
+
+    // Mostrar mensaje si no hay resultados
+    if (visibleCount === 0) {
+      noResults && noResults.classList.remove('hidden');
+    } else {
+      noResults && noResults.classList.add('hidden');
+    }
+  }
+
+  // Function para resetear filtros
+  function resetFilters() {
+    // Resetear botones
+    filterButtons.forEach(btn => {
+      btn.classList.remove('active', 'bg-blue-600', 'text-white');
+      btn.classList.add('text-blue-600', 'border-blue-600');
+    });
+    
+    const allButton = document.querySelector(`[data-category="all"][data-component-id="${cId}"]`);
+    if (allButton) {
+      allButton.classList.add('active', 'bg-blue-600', 'text-white');
+      allButton.classList.remove('text-blue-600');
+    }
+
+    // Mostrar todas las tarjetas
+    const gridCards = gridSection.querySelectorAll('.tip-card');
+    gridCards.forEach(card => {
+      if (card instanceof HTMLElement) card.style.display = 'block';
+    });
+
+    // Ocultar mensaje de no resultados
+    noResults && noResults.classList.add('hidden');
+  }
+
+  // Event listeners para filtros
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const category = button.getAttribute('data-category');
+      if (category) {
+        filterTips(category);
+      }
+    });
+  });
+
+  // Función para obtener traducciones de categorías
+  function getCategoryTranslation(category, lang) {
+    const categories = {
+      'pintura': { es: 'Pintura', ca: 'Pintura', en: 'Painting' },
+      'fontaneria': { es: 'Fontanería', ca: 'Fontaneria', en: 'Plumbing' },
+      'electricidad': { es: 'Electricidad', ca: 'Electricitat', en: 'Electrical' },
+      'reforma': { es: 'Reforma', ca: 'Reforma', en: 'Renovation' }
+    };
+    return (categories[category] && categories[category][lang]) || category;
+  }
+
+  // Función para obtener traducciones de dificultad
+  function getDifficultyTranslation(difficulty, lang) {
+    const difficulties = {
+      'fácil': { es: 'Fácil', ca: 'Fàcil', en: 'Easy' },
+      'medio': { es: 'Medio', ca: 'Mitjà', en: 'Medium' },
+      'difícil': { es: 'Difícil', ca: 'Difícil', en: 'Hard' },
+      'información': { es: 'Información', ca: 'Informació', en: 'Information' }
+    };
+    return (difficulties[difficulty] && difficulties[difficulty][lang]) || difficulty;
+  }
+
+  // Función para generar HTML de una tarjeta de consejo
+  function generateTipCardHTML(tip, lang, index) {
+    const tipContent = lang === 'es' ? 
+      { title: tip.title, content: tip.content, tags: tip.tags, difficulty: tip.difficulty, estimatedTime: tip.estimatedTime } :
+      (tip.translations && tip.translations[lang] ? tip.translations[lang] : { title: tip.title, content: tip.content, tags: tip.tags, difficulty: tip.difficulty, estimatedTime: tip.estimatedTime });
+    
+    const categoryText = getCategoryTranslation(tip.category, lang);
+    const difficultyText = getDifficultyTranslation(tip.difficulty, lang);
+    
+    // Obtener tags traducidos
+    const translatedTags = tipContent.tags || tip.tags;
+    
+    // Obtener tiempo estimado traducido
+    const translatedTime = tipContent.estimatedTime || tip.estimatedTime;
+    
+    return `
+      <article 
+        class="tip-card bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2"
+        data-category="${tip.category}"
+        data-component-id="${cId}"
+      >
+        <!-- Header de la tarjeta -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+          <div class="flex justify-between items-start mb-2">
+            <span class="category-text bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">
+              ${categoryText}
+            </span>
+            <span class="difficulty-text bg-white/20 text-white px-2 py-1 rounded text-xs">
+              ${difficultyText}
+            </span>
+          </div>
+          <h3 class="tip-title text-white font-bold text-lg leading-tight">
+            ${tipContent.title}
+          </h3>
+        </div>
+
+        <!-- Contenido -->
+        <div class="p-6">
+          <p class="tip-content text-gray-700 leading-relaxed mb-4">
+            ${tipContent.content}
+          </p>
+          
+          <!-- Metadata -->
+          <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              ${translatedTime}
+            </span>
+            <span>${new Date(tip.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'ca' ? 'ca-ES' : 'es-ES')}</span>
+          </div>
+
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-2">
+            ${translatedTags.map(tag => `
+              <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                #${tag}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  // Función para actualizar contenido de consejos según idioma
+  function updateTipsContent(lang) {
+    currentTipsLang = lang;
+    console.log('Actualizando consejos componente para idioma:', lang);
+
+    // Regenerar completamente el grid de consejos
+    const gridSection = document.getElementById(`tips-grid-${cId}`);
+    if (gridSection) {
+      console.log('Regenerando grid completo con idioma:', lang);
+      
+      // Generar nuevo HTML para todas las tarjetas
+      const newHTML = tipsData.map((tip, index) => generateTipCardHTML(tip, lang, index)).join('');
+      gridSection.innerHTML = newHTML;
+      
+      console.log('Grid regenerado con', tipsData.length, 'tarjetas');
+    }
+
+    // También actualizar las tarjetas de la vista previa
+    const previewCards = document.querySelectorAll(`[id="tips-preview-${cId}"] .tip-card`);
+    previewCards.forEach((card, index) => {
+      if (tipsData[index]) {
+        const tip = tipsData[index];
+        const tipContent = lang === 'es' ? 
+          { title: tip.title, content: tip.content, tags: tip.tags, difficulty: tip.difficulty, estimatedTime: tip.estimatedTime } :
+          (tip.translations && tip.translations[lang] ? tip.translations[lang] : { title: tip.title, content: tip.content, tags: tip.tags, difficulty: tip.difficulty, estimatedTime: tip.estimatedTime });
+
+        // Actualizar elementos de la vista previa
+        const titleElement = card.querySelector('.tip-title');
+        if (titleElement) titleElement.textContent = tipContent.title;
+
+        const contentElement = card.querySelector('.tip-content');
+        if (contentElement) contentElement.textContent = tipContent.content;
+
+        const categoryElement = card.querySelector('.category-text');
+        if (categoryElement) categoryElement.textContent = getCategoryTranslation(tip.category, lang);
+
+        const difficultyElement = card.querySelector('.difficulty-text');
+        if (difficultyElement) difficultyElement.textContent = getDifficultyTranslation(tip.difficulty, lang);
+
+        // Actualizar tiempo estimado
+        const timeElement = card.querySelector('.flex.items-center.gap-1');
+        if (timeElement) {
+          const timeSpan = timeElement.querySelector('span');
+          if (timeSpan) timeSpan.textContent = tipContent.estimatedTime || tip.estimatedTime;
+        }
+
+        // Actualizar tags
+        const tagsContainer = card.querySelector('.flex.flex-wrap.gap-2');
+        if (tagsContainer) {
+          const translatedTags = tipContent.tags || tip.tags;
+          tagsContainer.innerHTML = '';
+          translatedTags.forEach(tag => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs';
+            tagSpan.textContent = `#${tag}`;
+            tagsContainer.appendChild(tagSpan);
+          });
+        }
+      }
+    });
+
+    // Actualizar botones de filtro
+    const categories = [...new Set(tipsData.map(tip => tip.category))];
+    const categoryButtons = document.querySelectorAll(`[data-component-id="${cId}"].filter-btn:not([data-category="all"])`);
+    
+    categoryButtons.forEach((button, index) => {
+      if (categories[index]) {
+        const category = button.getAttribute('data-category');
+        if (category) {
+          button.textContent = getCategoryTranslation(category, lang);
+        }
+      }
+    });
+
+    // Actualizar texto del botón toggle
+    const toggleText = toggleButton.querySelector('.toggle-text');
+    if (toggleText) {
+      const translations = {
+        'es': isExpanded ? 'Ver Menos Consejos' : 'Ver Todos los Consejos',
+        'ca': isExpanded ? 'Veure Menys Consells' : 'Veure Tots els Consells',
+        'en': isExpanded ? 'View Fewer Tips' : 'View All Tips'
+      };
+      toggleText.textContent = translations[lang] || (isExpanded ? 'Ver Menos Consejos' : 'Ver Todos los Consejos');
+    }
+  }
+
+  // Exponer función globalmente para que pueda ser llamada desde el Header
+  window[`updateConsejos_${cId}`] = function(newLang) {
+    console.log('Consejos: Recibido cambio de idioma desde Header:', newLang);
+    currentTipsLang = newLang;
+    updateTipsContent(newLang);
+  };
+
+  // Sistema simple de detección de cambios como respaldo
+  let lastStoredLang = localStorage.getItem('selectedLanguage') || 'es';
+  
+  setInterval(() => {
+    try {
+      const currentStoredLang = localStorage.getItem('selectedLanguage') || 'es';
+      if (currentStoredLang !== lastStoredLang && currentStoredLang !== currentTipsLang) {
+        console.log('Consejos: Detectado cambio de idioma por localStorage:', currentStoredLang);
+        lastStoredLang = currentStoredLang;
+        currentTipsLang = currentStoredLang;
+        updateTipsContent(currentStoredLang);
+      }
+    } catch (error) {
+      console.log('Error en detección de cambios:', error);
+    }
+  }, 1000);
+});
+</script>
+
+<style>
+  .filter-btn.active {
+    background-color: rgb(37, 99, 235);
+    color: white;
+    border-color: rgb(37, 99, 235);
+  }
+  
+  .tip-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .tip-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .tips-full-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 768px) {
+    .tips-full-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .tips-full-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  .tips-full-grid.hidden {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .filter-btn {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+</style>

@@ -37,23 +37,23 @@ const navLinks = [
 
         <div>
             <h3 class="text-xl font-bold mb-4 text-blue-400">Multiservicios Emanuel</h3>
-            <p class="text-gray-400 text-sm">
+            <p class="text-gray-400 text-sm" data-translate="footer_tagline">
                 {t('footer_tagline')}
             </p>
             <p class="mt-4 text-gray-500 text-xs">
                 © {new Date().getFullYear()} Multiservicios Emanuel
-                {t('footer_all_rights_reserved')}
+                <span data-translate="footer_all_rights_reserved">{t('footer_all_rights_reserved')}</span>
             </p>
         </div>
 
         <div>
-            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1">
+            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1" data-translate="footer_sitemap">
                 {t('footer_sitemap')}
             </h4>
             <ul class="space-y-2">
                 {navLinks.map((item) => (
                     <li>
-                        <a href={item.url} class="text-gray-400 hover:text-blue-400 transition text-sm">
+                        <a href={item.url} class="text-gray-400 hover:text-blue-400 transition text-sm" data-translate={item.key}>
                             {t(item.key)}
                         </a>
                     </li>
@@ -62,18 +62,18 @@ const navLinks = [
         </div>
 
         <div>
-            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1">
+            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1" data-translate="footer_legal_info">
                 {t('footer_legal_info')}
             </h4>
             <ul class="space-y-2">
-                <li><a href="/aviso-legal" class="text-gray-400 hover:text-blue-400 transition text-sm">{t('link_legal')}</a></li>
-                <li><a href="/privacidad" class="text-gray-400 hover:text-blue-400 transition text-sm">{t('link_privacy')}</a></li>
-                <li><a href="/cookies" class="text-gray-400 hover:text-blue-400 transition text-sm">{t('link_cookies')}</a></li>
+                <li><button class="text-gray-400 hover:text-blue-400 transition text-sm text-left legal-modal-btn" data-modal="legal" data-translate="link_legal">{t('link_legal')}</button></li>
+                <li><button class="text-gray-400 hover:text-blue-400 transition text-sm text-left legal-modal-btn" data-modal="privacy" data-translate="link_privacy">{t('link_privacy')}</button></li>
+                <li><button class="text-gray-400 hover:text-blue-400 transition text-sm text-left legal-modal-btn" data-modal="cookies" data-translate="link_cookies">{t('link_cookies')}</button></li>
             </ul>
         </div>
         
         <div>
-            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1">
+            <h4 class="font-semibold mb-4 text-lg border-b border-blue-400 pb-1" data-translate="nav_contact">
                 {t('nav_contact')}
             </h4>
             <ul class="space-y-2 text-sm">
@@ -100,3 +100,603 @@ const navLinks = [
 
     </div>
 </footer>
+
+<!-- Modales de Información Legal -->
+<div id="legal-modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <!-- Header del Modal -->
+      <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-blue-600 text-white">
+        <h2 id="modal-title" class="text-2xl font-bold"></h2>
+        <button id="close-modal" class="text-white hover:text-gray-200 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Contenido del Modal -->
+      <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div id="modal-content" class="prose prose-sm max-w-none">
+          <!-- El contenido se insertará dinámicamente aquí -->
+        </div>
+      </div>
+      
+      <!-- Footer del Modal -->
+      <div class="p-4 border-t border-gray-200 bg-gray-50 text-center">
+        <p class="text-sm text-gray-600">
+          <span data-translate="legal_last_updated">Última actualización:</span> 
+          <span id="last-updated-date">{new Date().toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'ca' ? 'ca-ES' : 'es-ES')}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modalOverlay = document.getElementById('legal-modal-overlay');
+  const modalTitle = document.getElementById('modal-title');
+  const modalContent = document.getElementById('modal-content');
+  const closeModalBtn = document.getElementById('close-modal');
+  const legalModalBtns = document.querySelectorAll('.legal-modal-btn');
+  
+  // Obtener idioma actual
+  let currentLang = localStorage.getItem('selectedLanguage') || 'es';
+  
+  // Contenido de los modales
+  const legalContent = {
+    legal: {
+      es: {
+        title: 'Aviso Legal',
+        content: `
+          <h3>1. DATOS IDENTIFICATIVOS</h3>
+          <p><strong>Denominación social:</strong> Multiservicios Emanuel</p>
+          <p><strong>Domicilio:</strong> Barcelona, España</p>
+          <p><strong>Teléfono:</strong> +34 93 123 45 67</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          
+          <h3>2. OBJETO</h3>
+          <p>El presente aviso legal regula el uso del sitio web www.multiserviciosemanuel.com (en adelante, la WEB), del que es titular Multiservicios Emanuel.</p>
+          <p>La navegación por la WEB atribuye la condición de usuario del mismo e implica la aceptación plena y sin reservas de todas y cada una de las disposiciones incluidas en este Aviso Legal.</p>
+          
+          <h3>3. CONDICIONES DE USO</h3>
+          <p>El usuario se compromete a hacer un uso adecuado de los contenidos y servicios que Multiservicios Emanuel ofrece a través de su WEB y con carácter enunciativo pero no limitativo, a no emplearlos para:</p>
+          <ul>
+            <li>Incurrir en actividades ilícitas, ilegales o contrarias a la buena fe y al orden público</li>
+            <li>Difundir contenidos o propaganda de carácter racista, xenófobo, pornográfico-ilegal, de apología del terrorismo o atentatorio contra los derechos humanos</li>
+            <li>Provocar daños en los sistemas físicos y lógicos de Multiservicios Emanuel, de sus proveedores o de terceras personas</li>
+          </ul>
+          
+          <h3>4. CONTENIDOS</h3>
+          <p>Multiservicios Emanuel se reserva el derecho a modificar, suspender, cancelar o restringir el contenido de la WEB, los vínculos o la información obtenida a través de la WEB, sin necesidad de previo aviso.</p>
+          
+          <h3>5. RESPONSABILIDAD</h3>
+          <p>Multiservicios Emanuel no se hace responsable de los daños y perjuicios que pudieran derivarse del uso de la información del sitio web o de la falta de veracidad de la información que los usuarios faciliten.</p>
+          
+          <h3>6. PROPIEDAD INTELECTUAL</h3>
+          <p>Todos los contenidos, marcas, logos, dibujos, documentación, programas informáticos o cualquier otro elemento susceptible de protección por la legislación de propiedad intelectual o industrial, que sean accesibles en el portal corresponden exclusivamente a Multiservicios Emanuel o a sus legítimos propietarios y quedan expresamente reservados todos los derechos sobre los mismos.</p>
+          
+          <h3>7. LEY APLICABLE</h3>
+          <p>Para la resolución de todas las controversias o cuestiones relacionadas con el presente sitio web o de las actividades en él desarrolladas, será de aplicación la legislación española, a la que se someten expresamente las partes, siendo competentes para la resolución de todos los conflictos derivados o relacionados con su uso los Juzgados y Tribunales de Barcelona.</p>
+        `
+      },
+      ca: {
+        title: 'Avís Legal',
+        content: `
+          <h3>1. DADES IDENTIFICATIVES</h3>
+          <p><strong>Denominació social:</strong> Multiserveis Emanuel</p>
+          <p><strong>Domicili:</strong> Barcelona, Espanya</p>
+          <p><strong>Telèfon:</strong> +34 93 123 45 67</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          
+          <h3>2. OBJECTE</h3>
+          <p>El present avís legal regula l'ús del lloc web www.multiserviciosemanuel.com (d'ara endavant, la WEB), del qual és titular Multiserveis Emanuel.</p>
+          <p>La navegació per la WEB atribueix la condició d'usuari del mateix i implica l'acceptació plena i sense reserves de totes i cadascuna de les disposicions incloses en aquest Avís Legal.</p>
+          
+          <h3>3. CONDICIONS D'ÚS</h3>
+          <p>L'usuari es compromet a fer un ús adequat dels continguts i serveis que Multiserveis Emanuel ofereix a través de la seva WEB i amb caràcter enunciatiu però no limitatiu, a no emprar-los per:</p>
+          <ul>
+            <li>Incórrer en activitats il·lícites, il·legals o contràries a la bona fe i a l'ordre públic</li>
+            <li>Difondre continguts o propaganda de caràcter racista, xenòfob, pornogràfic-il·legal, d'apologia del terrorisme o atentatori contra els drets humans</li>
+            <li>Provocar danys en els sistemes físics i lògics de Multiserveis Emanuel, dels seus proveïdors o de terceres persones</li>
+          </ul>
+          
+          <h3>4. CONTINGUTS</h3>
+          <p>Multiserveis Emanuel es reserva el dret a modificar, suspendre, cancel·lar o restringir el contingut de la WEB, els vincles o la informació obtinguda a través de la WEB, sense necessitat de previ avís.</p>
+          
+          <h3>5. RESPONSABILITAT</h3>
+          <p>Multiserveis Emanuel no es fa responsable dels danys i perjudicis que poguessin derivar-se de l'ús de la informació del lloc web o de la falta de veracitat de la informació que els usuaris facilitin.</p>
+          
+          <h3>6. PROPIETAT INTEL·LECTUAL</h3>
+          <p>Tots els continguts, marques, logos, dibuixos, documentació, programes informàtics o qualsevol altre element susceptible de protecció per la legislació de propietat intel·lectual o industrial, que siguin accessibles al portal corresponen exclusivament a Multiserveis Emanuel o als seus legítims propietaris i queden expressament reservats tots els drets sobre els mateixos.</p>
+          
+          <h3>7. LLEI APLICABLE</h3>
+          <p>Per a la resolució de totes les controvèrsies o qüestions relacionades amb el present lloc web o de les activitats que s'hi desenvolupin, serà d'aplicació la legislació espanyola, a la qual se sotmeten expressament les parts, sent competents per a la resolució de tots els conflictes derivats o relacionats amb el seu ús els Jutjats i Tribunals de Barcelona.</p>
+        `
+      },
+      en: {
+        title: 'Legal Notice',
+        content: `
+          <h3>1. IDENTIFYING DATA</h3>
+          <p><strong>Company name:</strong> Emanuel Multiservices</p>
+          <p><strong>Address:</strong> Barcelona, Spain</p>
+          <p><strong>Phone:</strong> +34 93 123 45 67</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          
+          <h3>2. PURPOSE</h3>
+          <p>This legal notice regulates the use of the website www.multiserviciosemanuel.com (hereinafter, the WEBSITE), owned by Emanuel Multiservices.</p>
+          <p>Navigation through the WEBSITE attributes the condition of user and implies full and unreserved acceptance of each and every one of the provisions included in this Legal Notice.</p>
+          
+          <h3>3. CONDITIONS OF USE</h3>
+          <p>The user undertakes to make appropriate use of the contents and services that Emanuel Multiservices offers through its WEBSITE and, by way of example but not limitation, not to use them to:</p>
+          <ul>
+            <li>Engage in illicit, illegal activities or activities contrary to good faith and public order</li>
+            <li>Disseminate content or propaganda of a racist, xenophobic, illegal-pornographic nature, advocating terrorism or attacking human rights</li>
+            <li>Cause damage to the physical and logical systems of Emanuel Multiservices, its suppliers or third parties</li>
+          </ul>
+          
+          <h3>4. CONTENTS</h3>
+          <p>Emanuel Multiservices reserves the right to modify, suspend, cancel or restrict the content of the WEBSITE, links or information obtained through the WEBSITE, without prior notice.</p>
+          
+          <h3>5. RESPONSIBILITY</h3>
+          <p>Emanuel Multiservices is not responsible for damages that may arise from the use of website information or from the lack of veracity of information provided by users.</p>
+          
+          <h3>6. INTELLECTUAL PROPERTY</h3>
+          <p>All content, trademarks, logos, drawings, documentation, computer programs or any other element susceptible to protection by intellectual or industrial property legislation, accessible on the portal, belong exclusively to Emanuel Multiservices or their legitimate owners and all rights thereon are expressly reserved.</p>
+          
+          <h3>7. APPLICABLE LAW</h3>
+          <p>For the resolution of all controversies or issues related to this website or activities developed therein, Spanish legislation shall apply, to which the parties expressly submit, with the Courts and Tribunals of Barcelona being competent for the resolution of all conflicts derived from or related to its use.</p>
+        `
+      }
+    },
+    privacy: {
+      es: {
+        title: 'Política de Privacidad',
+        content: `
+          <h3>1. RESPONSABLE DEL TRATAMIENTO</h3>
+          <p><strong>Identidad:</strong> Multiservicios Emanuel</p>
+          <p><strong>Dirección:</strong> Barcelona, España</p>
+          <p><strong>Teléfono:</strong> +34 93 123 45 67</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          
+          <h3>2. FINALIDADES DEL TRATAMIENTO</h3>
+          <p>Los datos personales que nos proporciona serán tratados con las siguientes finalidades:</p>
+          <ul>
+            <li><strong>Contacto y comunicación:</strong> Responder a sus consultas y solicitudes de información sobre nuestros servicios</li>
+            <li><strong>Prestación de servicios:</strong> Gestionar la prestación de servicios contratados</li>
+            <li><strong>Facturación:</strong> Emisión de facturas y gestión contable</li>
+            <li><strong>Marketing directo:</strong> Envío de información comercial de nuestros servicios (solo con su consentimiento)</li>
+          </ul>
+          
+          <h3>3. LEGITIMACIÓN</h3>
+          <p>La base legal para el tratamiento de sus datos es:</p>
+          <ul>
+            <li>Consentimiento del interesado para el envío de comunicaciones comerciales</li>
+            <li>Ejecución de un contrato en el que el interesado es parte</li>
+            <li>Interés legítimo del responsable para la gestión de consultas</li>
+          </ul>
+          
+          <h3>4. CONSERVACIÓN DE DATOS</h3>
+          <p>Sus datos se conservarán durante el tiempo necesario para cumplir con la finalidad para la que se recabaron y para determinar las posibles responsabilidades que se pudieran derivar de dicha finalidad y del tratamiento de los datos, además de los períodos establecidos en la normativa de archivos y documentación.</p>
+          
+          <h3>5. DESTINATARIOS</h3>
+          <p>Sus datos no serán comunicados a terceros, salvo obligación legal o que sea necesario para la prestación del servicio solicitado.</p>
+          
+          <h3>6. DERECHOS DEL INTERESADO</h3>
+          <p>Puede ejercer los siguientes derechos:</p>
+          <ul>
+            <li><strong>Acceso:</strong> Obtener información sobre si estamos tratando sus datos personales</li>
+            <li><strong>Rectificación:</strong> Solicitar la rectificación de los datos inexactos</li>
+            <li><strong>Supresión:</strong> Solicitar la supresión de sus datos cuando ya no sean necesarios</li>
+            <li><strong>Oposición:</strong> Oponerse al tratamiento de sus datos</li>
+            <li><strong>Limitación:</strong> Solicitar la limitación del tratamiento de sus datos</li>
+            <li><strong>Portabilidad:</strong> Solicitar la portabilidad de sus datos</li>
+          </ul>
+          <p>Para ejercer estos derechos, puede contactar con nosotros en: info@multiserviciosemanuel.com</p>
+          
+          <h3>7. RECLAMACIONES</h3>
+          <p>Si considera que el tratamiento de sus datos personales vulnera la normativa, puede presentar una reclamación ante la Agencia Española de Protección de Datos (www.aepd.es).</p>
+          
+          <h3>8. SEGURIDAD</h3>
+          <p>Hemos adoptado las medidas técnicas y organizativas apropiadas para garantizar la seguridad de sus datos personales y evitar su alteración, pérdida, tratamiento o acceso no autorizado.</p>
+          
+          <h3>9. TRANSFERENCIAS INTERNACIONALES</h3>
+          <p>Actualmente no realizamos transferencias internacionales de datos. En caso de hacerlo en el futuro, le informaremos debidamente y solicitaremos su consentimiento cuando sea necesario.</p>
+        `
+      },
+      ca: {
+        title: 'Política de Privacitat',
+        content: `
+          <h3>1. RESPONSABLE DEL TRACTAMENT</h3>
+          <p><strong>Identitat:</strong> Multiserveis Emanuel</p>
+          <p><strong>Adreça:</strong> Barcelona, Espanya</p>
+          <p><strong>Telèfon:</strong> +34 93 123 45 67</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          
+          <h3>2. FINALITATS DEL TRACTAMENT</h3>
+          <p>Les dades personals que ens proporciona seran tractades amb les següents finalitats:</p>
+          <ul>
+            <li><strong>Contacte i comunicació:</strong> Respondre a les seves consultes i sol·licituds d'informació sobre els nostres serveis</li>
+            <li><strong>Prestació de serveis:</strong> Gestionar la prestació de serveis contractats</li>
+            <li><strong>Facturació:</strong> Emissió de factures i gestió comptable</li>
+            <li><strong>Màrqueting directe:</strong> Enviament d'informació comercial dels nostres serveis (només amb el seu consentiment)</li>
+          </ul>
+          
+          <h3>3. LEGITIMACIÓ</h3>
+          <p>La base legal per al tractament de les seves dades és:</p>
+          <ul>
+            <li>Consentiment de l'interessat per a l'enviament de comunicacions comercials</li>
+            <li>Execució d'un contracte en què l'interessat és part</li>
+            <li>Interès legítim del responsable per a la gestió de consultes</li>
+          </ul>
+          
+          <h3>4. CONSERVACIÓ DE DADES</h3>
+          <p>Les seves dades es conservaran durant el temps necessari per complir amb la finalitat per a la qual es van recaptar i per determinar les possibles responsabilitats que es poguessin derivar d'aquesta finalitat i del tractament de les dades, a més dels períodes establerts en la normativa d'arxius i documentació.</p>
+          
+          <h3>5. DESTINATARIS</h3>
+          <p>Les seves dades no seran comunicades a tercers, excepte obligació legal o que sigui necessari per a la prestació del servei sol·licitat.</p>
+          
+          <h3>6. DRETS DE L'INTERESSAT</h3>
+          <p>Pot exercir els següents drets:</p>
+          <ul>
+            <li><strong>Accés:</strong> Obtenir informació sobre si estem tractant les seves dades personals</li>
+            <li><strong>Rectificació:</strong> Sol·licitar la rectificació de les dades inexactes</li>
+            <li><strong>Supressió:</strong> Sol·licitar la supressió de les seves dades quan ja no siguin necessaris</li>
+            <li><strong>Oposició:</strong> Oposar-se al tractament de les seves dades</li>
+            <li><strong>Limitació:</strong> Sol·licitar la limitació del tractament de les seves dades</li>
+            <li><strong>Portabilitat:</strong> Sol·licitar la portabilitat de les seves dades</li>
+          </ul>
+          <p>Per exercir aquests drets, pot contactar amb nosaltres a: info@multiserviciosemanuel.com</p>
+          
+          <h3>7. RECLAMACIONS</h3>
+          <p>Si considera que el tractament de les seves dades personals vulnera la normativa, pot presentar una reclamació davant l'Agència Espanyola de Protecció de Dades (www.aepd.es).</p>
+          
+          <h3>8. SEGURETAT</h3>
+          <p>Hem adoptat les mesures tècniques i organitzatives apropiades per garantir la seguretat de les seves dades personals i evitar la seva alteració, pèrdua, tractament o accés no autoritzat.</p>
+          
+          <h3>9. TRANSFERÈNCIES INTERNACIONALS</h3>
+          <p>Actualment no realitzem transferències internacionals de dades. En cas de fer-ho en el futur, l'informarem degudament i sol·licitarem el seu consentiment quan sigui necessari.</p>
+        `
+      },
+      en: {
+        title: 'Privacy Policy',
+        content: `
+          <h3>1. DATA CONTROLLER</h3>
+          <p><strong>Identity:</strong> Emanuel Multiservices</p>
+          <p><strong>Address:</strong> Barcelona, Spain</p>
+          <p><strong>Phone:</strong> +34 93 123 45 67</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          
+          <h3>2. PROCESSING PURPOSES</h3>
+          <p>The personal data you provide will be processed for the following purposes:</p>
+          <ul>
+            <li><strong>Contact and communication:</strong> Respond to your inquiries and information requests about our services</li>
+            <li><strong>Service provision:</strong> Manage the provision of contracted services</li>
+            <li><strong>Billing:</strong> Invoice issuance and accounting management</li>
+            <li><strong>Direct marketing:</strong> Sending commercial information about our services (only with your consent)</li>
+          </ul>
+          
+          <h3>3. LEGAL BASIS</h3>
+          <p>The legal basis for processing your data is:</p>
+          <ul>
+            <li>Data subject's consent for sending commercial communications</li>
+            <li>Performance of a contract to which the data subject is party</li>
+            <li>Legitimate interest of the controller for query management</li>
+          </ul>
+          
+          <h3>4. DATA RETENTION</h3>
+          <p>Your data will be kept for the time necessary to fulfill the purpose for which it was collected and to determine possible responsibilities that could derive from that purpose and data processing, in addition to the periods established in archival and documentation regulations.</p>
+          
+          <h3>5. RECIPIENTS</h3>
+          <p>Your data will not be communicated to third parties, except for legal obligation or when necessary for the provision of the requested service.</p>
+          
+          <h3>6. DATA SUBJECT RIGHTS</h3>
+          <p>You can exercise the following rights:</p>
+          <ul>
+            <li><strong>Access:</strong> Obtain information about whether we are processing your personal data</li>
+            <li><strong>Rectification:</strong> Request rectification of inaccurate data</li>
+            <li><strong>Erasure:</strong> Request deletion of your data when no longer necessary</li>
+            <li><strong>Objection:</strong> Object to the processing of your data</li>
+            <li><strong>Restriction:</strong> Request restriction of processing of your data</li>
+            <li><strong>Portability:</strong> Request portability of your data</li>
+          </ul>
+          <p>To exercise these rights, you can contact us at: info@multiserviciosemanuel.com</p>
+          
+          <h3>7. COMPLAINTS</h3>
+          <p>If you believe that the processing of your personal data violates regulations, you can file a complaint with the Spanish Data Protection Agency (www.aepd.es).</p>
+          
+          <h3>8. SECURITY</h3>
+          <p>We have adopted appropriate technical and organizational measures to ensure the security of your personal data and prevent its alteration, loss, processing or unauthorized access.</p>
+          
+          <h3>9. INTERNATIONAL TRANSFERS</h3>
+          <p>We currently do not make international data transfers. Should we do so in the future, we will inform you properly and request your consent when necessary.</p>
+        `
+      }
+    },
+    cookies: {
+      es: {
+        title: 'Política de Cookies',
+        content: `
+          <h3>1. ¿QUÉ SON LAS COOKIES?</h3>
+          <p>Las cookies son pequeños archivos de texto que se almacenan en su dispositivo cuando visita un sitio web. Las cookies son ampliamente utilizadas para hacer que los sitios web funcionen de manera más eficiente, así como para proporcionar información a los propietarios del sitio.</p>
+          
+          <h3>2. ¿QUÉ COOKIES UTILIZAMOS?</h3>
+          <p>En nuestro sitio web utilizamos los siguientes tipos de cookies:</p>
+          
+          <h4>2.1 Cookies Técnicas (Necesarias)</h4>
+          <p>Estas cookies son esenciales para el funcionamiento del sitio web y no se pueden desactivar. Incluyen:</p>
+          <ul>
+            <li><strong>selectedLanguage:</strong> Almacena el idioma seleccionado por el usuario</li>
+            <li><strong>Cookies de sesión:</strong> Mantienen la sesión del usuario durante la navegación</li>
+          </ul>
+          
+          <h4>2.2 Cookies de Funcionalidad</h4>
+          <p>Estas cookies permiten que el sitio web recuerde las elecciones que hace (como su idioma) y proporcionan características mejoradas y más personales.</p>
+          
+          <h4>2.3 Cookies Analíticas</h4>
+          <p>Utilizamos cookies analíticas para entender cómo los visitantes interactúan con nuestro sitio web. Esto nos ayuda a mejorar el funcionamiento del sitio.</p>
+          
+          <h3>3. COOKIES DE TERCEROS</h3>
+          <p>Nuestro sitio web puede incluir cookies de terceros proveedores:</p>
+          <ul>
+            <li><strong>Google Maps:</strong> Para mostrar mapas interactivos</li>
+            <li><strong>WhatsApp:</strong> Para la funcionalidad de chat</li>
+          </ul>
+          
+          <h3>4. GESTIÓN DE COOKIES</h3>
+          <p>Puede gestionar las cookies a través de la configuración de su navegador:</p>
+          <ul>
+            <li><strong>Chrome:</strong> Configuración > Privacidad y seguridad > Cookies y otros datos de sitios</li>
+            <li><strong>Firefox:</strong> Opciones > Privacidad y seguridad > Cookies y datos del sitio</li>
+            <li><strong>Safari:</strong> Preferencias > Privacidad > Cookies y datos de sitios web</li>
+            <li><strong>Edge:</strong> Configuración > Privacidad, búsqueda y servicios > Cookies</li>
+          </ul>
+          
+          <h3>5. CONSENTIMIENTO</h3>
+          <p>Al continuar navegando por nuestro sitio web, usted acepta el uso de cookies de acuerdo con esta política. Puede retirar su consentimiento en cualquier momento modificando la configuración de su navegador.</p>
+          
+          <h3>6. ACTUALIZACIONES</h3>
+          <p>Esta política de cookies puede actualizarse periódicamente. La fecha de la última actualización se muestra al final de este documento.</p>
+          
+          <h3>7. CONTACTO</h3>
+          <p>Si tiene preguntas sobre nuestra política de cookies, puede contactarnos en:</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          <p><strong>Teléfono:</strong> +34 93 123 45 67</p>
+        `
+      },
+      ca: {
+        title: 'Política de Galetes',
+        content: `
+          <h3>1. QUÈ SÓN LES GALETES?</h3>
+          <p>Les galetes són petits arxius de text que s'emmagatzemen al seu dispositiu quan visita un lloc web. Les galetes s'utilitzen àmpliament per fer que els llocs web funcionin de manera més eficient, així com per proporcionar informació als propietaris del lloc.</p>
+          
+          <h3>2. QUINES GALETES UTILITZEM?</h3>
+          <p>Al nostre lloc web utilitzem els següents tipus de galetes:</p>
+          
+          <h4>2.1 Galetes Tècniques (Necessàries)</h4>
+          <p>Aquestes galetes són essencials per al funcionament del lloc web i no es poden desactivar. Inclouen:</p>
+          <ul>
+            <li><strong>selectedLanguage:</strong> Emmagatzema l'idioma seleccionat per l'usuari</li>
+            <li><strong>Galetes de sessió:</strong> Mantenen la sessió de l'usuari durant la navegació</li>
+          </ul>
+          
+          <h4>2.2 Galetes de Funcionalitat</h4>
+          <p>Aquestes galetes permeten que el lloc web recordi les eleccions que fa (com el seu idioma) i proporcionen característiques millorades i més personals.</p>
+          
+          <h4>2.3 Galetes Analítiques</h4>
+          <p>Utilitzem galetes analítiques per entendre com els visitants interactuen amb el nostre lloc web. Això ens ajuda a millorar el funcionament del lloc.</p>
+          
+          <h3>3. GALETES DE TERCERS</h3>
+          <p>El nostre lloc web pot incloure galetes de tercers proveïdors:</p>
+          <ul>
+            <li><strong>Google Maps:</strong> Per mostrar mapes interactius</li>
+            <li><strong>WhatsApp:</strong> Per a la funcionalitat de xat</li>
+          </ul>
+          
+          <h3>4. GESTIÓ DE GALETES</h3>
+          <p>Pot gestionar les galetes a través de la configuració del seu navegador:</p>
+          <ul>
+            <li><strong>Chrome:</strong> Configuració > Privacitat i seguretat > Galetes i altres dades de llocs</li>
+            <li><strong>Firefox:</strong> Opcions > Privacitat i seguretat > Galetes i dades del lloc</li>
+            <li><strong>Safari:</strong> Preferències > Privacitat > Galetes i dades de llocs web</li>
+            <li><strong>Edge:</strong> Configuració > Privacitat, cerca i serveis > Galetes</li>
+          </ul>
+          
+          <h3>5. CONSENTIMENT</h3>
+          <p>En continuar navegant pel nostre lloc web, vostè accepta l'ús de galetes d'acord amb aquesta política. Pot retirar el seu consentiment en qualsevol moment modificant la configuració del seu navegador.</p>
+          
+          <h3>6. ACTUALITZACIONS</h3>
+          <p>Aquesta política de galetes pot actualitzar-se periòdicament. La data de l'última actualització es mostra al final d'aquest document.</p>
+          
+          <h3>7. CONTACTE</h3>
+          <p>Si té preguntes sobre la nostra política de galetes, pot contactar-nos a:</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          <p><strong>Telèfon:</strong> +34 93 123 45 67</p>
+        `
+      },
+      en: {
+        title: 'Cookies Policy',
+        content: `
+          <h3>1. WHAT ARE COOKIES?</h3>
+          <p>Cookies are small text files that are stored on your device when you visit a website. Cookies are widely used to make websites work more efficiently, as well as to provide information to site owners.</p>
+          
+          <h3>2. WHAT COOKIES DO WE USE?</h3>
+          <p>On our website we use the following types of cookies:</p>
+          
+          <h4>2.1 Technical Cookies (Necessary)</h4>
+          <p>These cookies are essential for the website to function and cannot be disabled. They include:</p>
+          <ul>
+            <li><strong>selectedLanguage:</strong> Stores the language selected by the user</li>
+            <li><strong>Session cookies:</strong> Maintain the user's session during navigation</li>
+          </ul>
+          
+          <h4>2.2 Functionality Cookies</h4>
+          <p>These cookies allow the website to remember choices you make (such as your language) and provide enhanced, more personal features.</p>
+          
+          <h4>2.3 Analytics Cookies</h4>
+          <p>We use analytics cookies to understand how visitors interact with our website. This helps us improve site performance.</p>
+          
+          <h3>3. THIRD-PARTY COOKIES</h3>
+          <p>Our website may include third-party cookies from:</p>
+          <ul>
+            <li><strong>Google Maps:</strong> To display interactive maps</li>
+            <li><strong>WhatsApp:</strong> For chat functionality</li>
+          </ul>
+          
+          <h3>4. COOKIE MANAGEMENT</h3>
+          <p>You can manage cookies through your browser settings:</p>
+          <ul>
+            <li><strong>Chrome:</strong> Settings > Privacy and security > Cookies and other site data</li>
+            <li><strong>Firefox:</strong> Options > Privacy & Security > Cookies and site data</li>
+            <li><strong>Safari:</strong> Preferences > Privacy > Cookies and website data</li>
+            <li><strong>Edge:</strong> Settings > Privacy, search, and services > Cookies</li>
+          </ul>
+          
+          <h3>5. CONSENT</h3>
+          <p>By continuing to browse our website, you accept the use of cookies in accordance with this policy. You can withdraw your consent at any time by modifying your browser settings.</p>
+          
+          <h3>6. UPDATES</h3>
+          <p>This cookie policy may be updated periodically. The date of the last update is shown at the end of this document.</p>
+          
+          <h3>7. CONTACT</h3>
+          <p>If you have questions about our cookie policy, you can contact us at:</p>
+          <p><strong>Email:</strong> info@multiserviciosemanuel.com</p>
+          <p><strong>Phone:</strong> +34 93 123 45 67</p>
+        `
+      }
+    }
+  };
+  
+  // Verificar que los elementos existen antes de continuar
+  if (!modalOverlay || !modalTitle || !modalContent || !closeModalBtn) {
+    console.error('Elementos del modal no encontrados');
+    return;
+  }
+  
+  // Función para abrir modal
+  function openModal(modalType: string) {
+    const validTypes = ['legal', 'privacy', 'cookies'] as const;
+    if (!validTypes.includes(modalType as any)) return;
+    
+    const content = legalContent[modalType as keyof typeof legalContent][currentLang as keyof typeof legalContent.legal];
+    if (content && modalTitle && modalContent && modalOverlay) {
+      modalTitle.textContent = content.title;
+      modalContent.innerHTML = content.content;
+      modalOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+    }
+  }
+  
+  // Función para cerrar modal
+  function closeModal() {
+    if (modalOverlay) {
+      modalOverlay.classList.add('hidden');
+      document.body.style.overflow = 'auto'; // Restaurar scroll del body
+    }
+  }
+  
+  // Event listeners
+  legalModalBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const modalType = btn.getAttribute('data-modal');
+      if (modalType) {
+        openModal(modalType);
+      }
+    });
+  });
+  
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeModal);
+  }
+  
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        closeModal();
+      }
+    });
+  }
+  
+  // Cerrar modal con Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+  
+  // Actualizar idioma cuando cambie
+  let lastStoredLang = localStorage.getItem('selectedLanguage') || 'es';
+  
+  setInterval(() => {
+    try {
+      const currentStoredLang = localStorage.getItem('selectedLanguage') || 'es';
+      if (currentStoredLang !== lastStoredLang) {
+        lastStoredLang = currentStoredLang;
+        currentLang = currentStoredLang;
+      }
+    } catch (error) {
+      console.log('Error en detección de cambios de idioma en footer:', error);
+    }
+  }, 500);
+});
+</script>
+
+<style>
+  .prose h3 {
+    color: #1e40af;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .prose h4 {
+    color: #374151;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose p {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+    color: #374151;
+  }
+  
+  .prose ul {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.25rem;
+    color: #374151;
+  }
+  
+  .prose strong {
+    color: #1f2937;
+    font-weight: 600;
+  }
+  
+  /* Animaciones para el modal */
+  #legal-modal-overlay {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  #legal-modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  #legal-modal-overlay > div {
+    transform: scale(0.95);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  #legal-modal-overlay:not(.hidden) > div {
+    transform: scale(1);
+  }
+</style>

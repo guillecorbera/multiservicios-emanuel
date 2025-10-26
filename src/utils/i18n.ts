@@ -16,6 +16,9 @@ const translations = {
     nav_contact: "Contacto",
     hero_slogan: "Transformamos tu espacio, tu vida.",
     cta_request_quote: "¡Pide tu presupuesto!",
+    services_title: "Nuestros Servicios",
+    services_subtitle:
+      "Ofrecemos una amplia gama de servicios profesionales para tu hogar",
     work_kitchen_modern: "Cocina Moderna",
     service_reforms_title: "Reformas Generales",
     service_reforms_desc:
@@ -40,6 +43,7 @@ const translations = {
     link_legal: "Aviso Legal",
     link_privacy: "Política de Privacidad",
     link_cookies: "Política de Cookies",
+    works_title: "Nuestros Trabajos",
     works_subtitle:
       "Explora la calidad y el detalle de nuestras reformas y proyectos recientes.",
     works_showing_random:
@@ -47,6 +51,21 @@ const translations = {
     works_show_more: "Ver Más Trabajos",
     works_view_gallery: "Ver Galería Completa",
     works_close_gallery: "Cerrar Galería",
+    tips_subtitle:
+      "Descubre consejos profesionales y técnicas para mantener tu hogar en perfecto estado",
+    tips_preview_title: "Consejos Profesionales",
+    tips_preview_description:
+      "Accede a nuestra completa biblioteca de consejos, técnicas y guías profesionales para el mantenimiento del hogar, reformas y mejoras.",
+    tips_view_all: "Ver Todos los Consejos",
+    filter_all: "Todos",
+    no_tips_found: "No se encontraron consejos para esta categoría",
+    tips_cta_title: "¿Necesitas ayuda profesional?",
+    tips_cta_subtitle:
+      "Nuestro equipo está listo para ayudarte con cualquier proyecto",
+    tips_cta_button: "Contactar Ahora",
+    contact_info_phone: "Teléfono",
+    contact_info_email: "Email",
+    contact_info_location: "Ubicación",
   },
   ca: {
     nav_home: "Inici",
@@ -56,6 +75,9 @@ const translations = {
     nav_contact: "Contacte",
     hero_slogan: "Transformem el teu espai, la teva vida.",
     cta_request_quote: "Demana el teu pressupost!",
+    services_title: "Els Nostres Serveis",
+    services_subtitle:
+      "Oferim una àmplia gamma de serveis professionals per a la teva llar",
     work_kitchen_modern: "Cuina Moderna",
     service_reforms_title: "Reformes Generals",
     service_reforms_desc:
@@ -81,6 +103,7 @@ const translations = {
     link_legal: "Avís Legal",
     link_privacy: "Política de Privacitat",
     link_cookies: "Política de Galetes",
+    works_title: "Els Nostres Treballs",
     works_subtitle:
       "Explora la qualitat i el detall de les nostres reformes i projectes recents.",
     works_showing_random:
@@ -88,6 +111,21 @@ const translations = {
     works_show_more: "Veure Més Treballs",
     works_view_gallery: "Veure Galeria Completa",
     works_close_gallery: "Tancar Galeria",
+    tips_subtitle:
+      "Descobreix consells professionals i tècniques per mantenir la teva llar en perfecte estat",
+    tips_preview_title: "Consells Professionals",
+    tips_preview_description:
+      "Accedeix a la nostra completa biblioteca de consells, tècniques i guies professionals per al manteniment de la llar, reformes i millores.",
+    tips_view_all: "Veure Tots els Consells",
+    filter_all: "Tots",
+    no_tips_found: "No s'han trobat consells per a aquesta categoria",
+    tips_cta_title: "Necessites ajuda professional?",
+    tips_cta_subtitle:
+      "El nostre equip està llest per ajudar-te amb qualsevol projecte",
+    tips_cta_button: "Contactar Ara",
+    contact_info_phone: "Telèfon",
+    contact_info_email: "Email",
+    contact_info_location: "Ubicació",
   },
   en: {
     nav_home: "Home",
@@ -97,6 +135,9 @@ const translations = {
     nav_contact: "Contact",
     hero_slogan: "We transform your space, your life.",
     cta_request_quote: "Get your quote!",
+    services_title: "Our Services",
+    services_subtitle:
+      "We offer a wide range of professional services for your home",
     work_kitchen_modern: "Modern Kitchen",
     service_reforms_title: "General Reforms",
     service_reforms_desc:
@@ -121,12 +162,27 @@ const translations = {
     link_legal: "Legal Notice",
     link_privacy: "Privacy Policy",
     link_cookies: "Cookies Policy",
+    works_title: "Our Works",
     works_subtitle:
       "Explore the quality and detail of our recent reforms and projects.",
     works_showing_random: "Showing a random selection of our works",
     works_show_more: "View More Works",
     works_view_gallery: "View Full Gallery",
     works_close_gallery: "Close Gallery",
+    tips_subtitle:
+      "Discover professional tips and techniques to keep your home in perfect condition",
+    tips_preview_title: "Professional Tips",
+    tips_preview_description:
+      "Access our complete library of tips, techniques and professional guides for home maintenance, renovations and improvements.",
+    tips_view_all: "View All Tips",
+    filter_all: "All",
+    no_tips_found: "No tips found for this category",
+    tips_cta_title: "Need professional help?",
+    tips_cta_subtitle: "Our team is ready to help you with any project",
+    tips_cta_button: "Contact Now",
+    contact_info_phone: "Phone",
+    contact_info_email: "Email",
+    contact_info_location: "Location",
   },
 } as const;
 

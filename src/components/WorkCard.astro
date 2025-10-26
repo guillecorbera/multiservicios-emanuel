@@ -1,6 +1,5 @@
 ---
 // src/components/WorkCard.astro
-import WorkGalleryModal from './WorkGalleryModal.astro';
 import { getTranslation, type Lang } from '../utils/i18n';
 
 // Definición de tipos para las props
@@ -54,8 +53,11 @@ const title = getWorkText('title');
         
         <!-- Overlays -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            {work.gallery_images.length} {work.gallery_images.length === 1 ? 'imagen' : 'imágenes'}
+        <div class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300" data-work-images={work.gallery_images.length}>
+            {work.gallery_images.length} {work.gallery_images.length === 1 ? 
+                (currentLang === 'ca' ? 'imatge' : currentLang === 'en' ? 'image' : 'imagen') : 
+                (currentLang === 'ca' ? 'imatges' : currentLang === 'en' ? 'images' : 'imágenes')
+            }
         </div>
     </figure>
 
@@ -72,7 +74,7 @@ const title = getWorkText('title');
             onclick={`window.openWorkModal('${modalId}')`}
             class="w-full py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group mt-auto"
         >
-            <span class="flex items-center justify-center gap-2">
+            <span class="flex items-center justify-center gap-2 gallery-btn-text">
                 {t('works_view_gallery')}
                 <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -92,9 +94,4 @@ const title = getWorkText('title');
     }
 </style>
 
-<WorkGalleryModal 
-    workId={work.id} 
-    title={title} 
-    images={work.gallery_images}
-    currentLang={currentLang}
-/>
+<!-- Modal manejado por NuestrosTrabajos.astro para evitar problemas de renderizado -->

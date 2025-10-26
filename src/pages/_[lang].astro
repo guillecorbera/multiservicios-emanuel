@@ -1,0 +1,125 @@
+---
+// ARCHIVO OBSOLETO - YA NO SE USA - VER src/_backup/ PARA RESPALDO
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Contact from '../components/Contact.astro';
+import NuestrosTrabajos from '../components/NuestrosTrabajos.astro';
+import { getTranslation, type Lang } from '../utils/i18n';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'es' } },
+    { params: { lang: 'ca' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params;
+const currentLang = (lang as Lang) || 'es';
+
+// Función de traducción para el cuerpo de la página
+const t = (key: string) => getTranslation(currentLang, key);
+
+// Título de la página 
+const pageTitle = "Multiservicios Emanuel | La Solución a tus Reformas";
+---
+
+<Layout title={pageTitle}>
+    <Header currentLang={currentLang} />
+
+    <main class="text-gray-800">
+        <section id="inicio" class="py-24 bg-gradient-to-br from-blue-50 to-blue-100 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/50"></div>
+            <div class="relative z-10 container mx-auto px-4">
+                <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 mb-6 animate-fade-in">
+                    Multiservicios Emanuel
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
+                    {t('hero_slogan')}
+                </p>
+                <a 
+                    href={`/${currentLang}#contacto`} 
+                    class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                    {t('cta_request_quote')}
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+        <NuestrosTrabajos currentLang={currentLang} />
+
+        <hr class="my-8" />
+
+        <section id="servicios" class="py-24 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">{t('nav_services')}</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">{t('services_subtitle')}</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-blue-500">
+                        <div class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6 mx-auto group-hover:bg-blue-200 transition-colors">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-blue-600 transition-colors">{t('service_reforms_title')}</h3>
+                        <p class="text-gray-600 leading-relaxed">{t('service_reforms_desc')}</p>
+                    </div>
+                    <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-green-500">
+                        <div class="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6 mx-auto group-hover:bg-green-200 transition-colors">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-green-600 transition-colors">{t('service_painting_title')}</h3>
+                        <p class="text-gray-600 leading-relaxed">{t('service_painting_desc')}</p>
+                    </div>
+                    <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-yellow-500">
+                        <div class="flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-6 mx-auto group-hover:bg-yellow-200 transition-colors">
+                            <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-yellow-600 transition-colors">{t('service_electrical_title')}</h3>
+                        <p class="text-gray-600 leading-relaxed">{t('service_electrical_desc')}</p>
+                    </div>
+                    <div class="group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border-b-4 border-purple-500">
+                        <div class="flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-6 mx-auto group-hover:bg-purple-200 transition-colors">
+                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 group-hover:text-purple-600 transition-colors">{t('service_plumbing_title')}</h3>
+                        <p class="text-gray-600 leading-relaxed">{t('service_plumbing_desc')}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-8" />
+
+        <section id="consejos" class="py-16 container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-10 text-gray-700">
+                {t('nav_tips')}
+            </h2>
+            <p class="text-center text-gray-600">
+                {t('tips_placeholder')}
+            </p>
+        </section>
+
+        <hr class="my-8" />
+
+        <Contact currentLang={currentLang} />
+
+    </main>
+
+    <Footer currentLang={currentLang} />
+</Layout>

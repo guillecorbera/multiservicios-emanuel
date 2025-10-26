@@ -1,0 +1,15 @@
+---
+// src/pages/[lang].astro.backup
+// ARCHIVO OBSOLETO - MANTENIDO SOLO COMO RESPALDO
+// LA NUEVA ARQUITECTURA USA COMPONENTES INTEGRADOS EN INDEX.ASTRO
+
+// Este archivo causaba advertencias del router porque usaba getStaticPaths()
+// en una página dinámica sin prerender = true
+
+// La funcionalidad ahora está implementada con:
+// - index.astro: página principal con componentes integrados  
+// - Componentes: Servicios.astro, Consejos.astro, etc.
+// - Sistema de traducción dinámico en el cliente
+---
+
+<!-- ARCHIVO DE RESPALDO - NO USAR -->

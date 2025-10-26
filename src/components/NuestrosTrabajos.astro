@@ -4,6 +4,7 @@ import worksData from '../data/works.json';
 import { shuffleArray } from '../utils/shuffle.js';
 import { getTranslation, type Lang } from '../utils/i18n';
 import WorkCard from './WorkCard.astro';
+import WorkGalleryModal from './WorkGalleryModal.astro';
 
 interface Props {
     currentLang: Lang;
@@ -23,10 +24,10 @@ const displayedWorks = shuffledWorks.slice(0, 6);
     <div class="container mx-auto px-6">
         
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 animate-fade-in" data-translate="works_title">
+            <h2 id="works-title" class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 animate-fade-in">
                 {t('works_title')}
             </h2>
-            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed" data-translate="works_subtitle">
+            <p id="works-subtitle" class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
                 {t('works_subtitle')}
             </p>
             <div class="w-24 h-1 bg-blue-500 mx-auto rounded-full"></div>
@@ -42,11 +43,11 @@ const displayedWorks = shuffledWorks.slice(0, 6);
 
         {worksData.length > 6 && (
             <div class="text-center mt-12">
-                <p class="text-gray-600 mb-4" data-translate="works_showing_random">{t('works_showing_random')}</p>
+                <p id="works-random-text" class="text-gray-600 mb-4">{t('works_showing_random')}</p>
                 <button 
+                    id="works-show-more-btn"
                     onclick="location.reload()" 
                     class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-                    data-translate="works_show_more"
                 >
                     {t('works_show_more')}
                 </button>
@@ -55,3 +56,158 @@ const displayedWorks = shuffledWorks.slice(0, 6);
 
     </div>
 </section>
+
+<!-- Modales fuera del grid para evitar problemas de renderizado -->
+{displayedWorks.map((work) => {
+    const title = work[`title_${currentLang}`] || work.title_es;
+    return (
+        <WorkGalleryModal 
+            workId={work.id} 
+            title={title} 
+            images={work.gallery_images}
+            currentLang={currentLang}
+        />
+    );
+})}
+
+<script is:inline>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentWorksLang = 'es';
+
+    // Función para actualizar las traducciones de la sección de trabajos
+    function updateWorksTranslations(translations) {
+        // Actualizar título de sección
+        const titleElement = document.getElementById('works-title');
+        if (titleElement && translations.works_title) {
+            titleElement.textContent = translations.works_title;
+        }
+
+        // Actualizar subtítulo de sección
+        const subtitleElement = document.getElementById('works-subtitle');
+        if (subtitleElement && translations.works_subtitle) {
+            subtitleElement.textContent = translations.works_subtitle;
+        }
+
+        // Actualizar texto "mostrando trabajos aleatorios"
+        const randomTextElement = document.getElementById('works-random-text');
+        if (randomTextElement && translations.works_showing_random) {
+            randomTextElement.textContent = translations.works_showing_random;
+        }
+
+        // Actualizar botón "ver más trabajos"
+        const showMoreButton = document.getElementById('works-show-more-btn');
+        if (showMoreButton && translations.works_show_more) {
+            showMoreButton.textContent = translations.works_show_more;
+        }
+
+        // Actualizar botones "ver galería" en las tarjetas
+        const galleryButtons = document.querySelectorAll('#trabajos .gallery-btn-text');
+        galleryButtons.forEach(button => {
+            // Mantener el ícono pero cambiar solo el texto
+            const svg = button.querySelector('svg');
+            button.innerHTML = (translations.works_view_gallery || 'Ver Galería');
+            if (svg) {
+                button.appendChild(svg);
+            }
+        });
+    }
+
+    // Función para actualizar el contenido de las tarjetas de trabajo
+    function updateWorkCards(lang) {
+        // Cargar datos de trabajos
+        if (window.worksData) {
+            const workCards = document.querySelectorAll('#trabajos article');
+            
+            workCards.forEach((card, index) => {
+                if (window.worksData[index]) {
+                    const work = window.worksData[index];
+                    
+                    // Actualizar título del trabajo
+                    const titleElement = card.querySelector('h3');
+                    if (titleElement) {
+                        const title = work[`title_${lang}`] || work.title_es;
+                        titleElement.textContent = title;
+                    }
+
+                    // Actualizar descripción del trabajo
+                    const descriptionElement = card.querySelector('.line-clamp-description');
+                    if (descriptionElement) {
+                        const description = work[`description_${lang}`] || work.description_es;
+                        descriptionElement.textContent = description;
+                    }
+
+                    // Actualizar alt de la imagen
+                    const imageElement = card.querySelector('img');
+                    if (imageElement) {
+                        const title = work[`title_${lang}`] || work.title_es;
+                        imageElement.alt = title;
+                    }
+
+                    // Actualizar contador de imágenes
+                    const imageCounter = card.querySelector('.absolute.top-4.right-4');
+                    if (imageCounter && work.gallery_images) {
+                        const count = work.gallery_images.length;
+                        const imageText = lang === 'es' ? (count === 1 ? 'imagen' : 'imágenes') :
+                                         lang === 'ca' ? (count === 1 ? 'imatge' : 'imatges') :
+                                         (count === 1 ? 'image' : 'images');
+                        imageCounter.textContent = `${count} ${imageText}`;
+                    }
+                }
+            });
+        }
+    }
+
+    // Función principal para cambiar idioma en la sección de trabajos
+    async function changeWorksLanguage(newLang) {
+        try {
+            console.log('Actualizando sección de trabajos al idioma:', newLang);
+            
+            // Cargar traducciones
+            const response = await fetch('/translations.json');
+            const translations = await response.json();
+            
+            if (translations[newLang]) {
+                currentWorksLang = newLang;
+                
+                // Actualizar traducciones generales
+                updateWorksTranslations(translations[newLang]);
+                
+                // Actualizar contenido de las tarjetas
+                updateWorkCards(newLang);
+                
+                // Actualizar modales de galería
+                if (window.updateModalLanguage && window.worksData) {
+                    window.updateModalLanguage(newLang, window.worksData);
+                }
+                
+                console.log('Sección de trabajos actualizada correctamente');
+            }
+        } catch (error) {
+            console.error('Error actualizando sección de trabajos:', error);
+        }
+    }
+
+    // Escuchar cambios de idioma desde el header
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList && e.target.classList.contains('language-link')) {
+            const newLang = e.target.getAttribute('data-lang');
+            if (newLang && newLang !== currentWorksLang) {
+                changeWorksLanguage(newLang);
+            }
+        }
+    });
+
+    // Almacenar datos de trabajos para acceso desde JavaScript
+    try {
+        const worksScript = document.getElementById('works-data');
+        if (worksScript) {
+            window.worksData = JSON.parse(worksScript.textContent);
+        }
+    } catch (error) {
+        console.error('Error cargando datos de trabajos:', error);
+    }
+});
+</script>
+
+<!-- Datos embebidos para JavaScript -->
+<script id="works-data" type="application/json" set:html={JSON.stringify(worksData)}></script>
