@@ -550,7 +550,14 @@ document.addEventListener('DOMContentLoaded', function() {
         body: JSON.stringify(data),
       });
       
-      const result = await response.json();
+      // Verificar si la respuesta es JSON válida
+      let result;
+      try {
+        result = await response.json();
+      } catch (jsonError) {
+        console.error('Error parsing JSON response:', jsonError);
+        throw new Error('Error de comunicación con el servidor');
+      }
       
       if (response.ok && result.success) {
         sendingStatus.classList.add('hidden');
@@ -565,12 +572,21 @@ document.addEventListener('DOMContentLoaded', function() {
           formStatus.classList.add('hidden');
         }, 8000);
       } else {
-        throw new Error(result.error || 'Error al enviar el mensaje');
+        // Mostrar error específico del servidor o genérico
+        const errorMessage = result?.error || `Error ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
       sendingStatus.classList.add('hidden');
       errorStatus.classList.remove('hidden');
+      
+      // Mostrar error específico si está disponible
+      const errorElement = document.getElementById('form-error');
+      if (errorElement) {
+        const errorMessage = (error instanceof Error ? error.message : 'Error desconocido al enviar el mensaje');
+        errorElement.textContent = errorMessage;
+      }
       
       // Ocultar mensaje de error después de 8 segundos
       setTimeout(() => {
